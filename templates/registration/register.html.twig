@@ -1,0 +1,79 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Inscription{% endblock %}
+
+{% block body %}
+<div class="auth-container">
+    <div class="auth-card">
+        <div class="auth-header">
+            <h1 class="auth-title">Inscription</h1>
+        </div>
+        <div class="auth-body">
+            {% for message in app.flashes('debug') %}
+                <div class="auth-alert auth-alert-info">
+                    {{ message }}
+                </div>
+            {% endfor %}
+
+            {% for message in app.flashes('error') %}
+                <div class="auth-alert">
+                    {{ message }}
+                </div>
+            {% endfor %}
+
+            {% for message in app.flashes('success') %}
+                <div class="auth-alert auth-alert-success">
+                    {{ message }}
+                </div>
+            {% endfor %}
+
+            {{ form_start(registrationForm, {'attr': {'class': 'auth-form needs-validation'}}) }}
+                <div class="form-group">
+                    {{ form_label(registrationForm.firstName, 'Prénom', {'label_attr': {'class': 'form-label'}}) }}
+                    {{ form_widget(registrationForm.firstName) }}
+                    {{ form_errors(registrationForm.firstName) }}
+                </div>
+                
+                <div class="form-group">
+                    {{ form_label(registrationForm.lastName, 'Nom', {'label_attr': {'class': 'form-label'}}) }}
+                    {{ form_widget(registrationForm.lastName) }}
+                    {{ form_errors(registrationForm.lastName) }}
+                </div>
+                
+                <div class="form-group">
+                    {{ form_label(registrationForm.email, 'Email', {'label_attr': {'class': 'form-label'}}) }}
+                    {{ form_widget(registrationForm.email) }}
+                    {{ form_errors(registrationForm.email) }}
+                </div>
+                
+                <div class="form-group">
+                    {{ form_label(registrationForm.password, 'Mot de passe', {'label_attr': {'class': 'form-label'}}) }}
+                    {{ form_widget(registrationForm.password) }}
+                    {{ form_errors(registrationForm.password) }}
+                </div>
+                
+                <div class="form-group">
+                    {{ form_label(registrationForm.confirmPassword, 'Confirmer le mot de passe', {'label_attr': {'class': 'form-label'}}) }}
+                    {{ form_widget(registrationForm.confirmPassword) }}
+                    {{ form_errors(registrationForm.confirmPassword) }}
+                </div>
+                
+                <div class="form-group custom-checkbox">
+                    {{ form_widget(registrationForm.agreeTerms) }}
+                    <span class="checkmark"></span>
+                    <span class="custom-checkbox-label">
+                        J'accepte le traitement de mes données personnelles conformément à la <a href="/rgpd" target="_blank">politique de confidentialité</a>
+                    </span>
+                    {{ form_errors(registrationForm.agreeTerms) }}
+                </div>
+
+                <button type="submit" class="auth-button">S'inscrire</button>
+            {{ form_end(registrationForm) }}
+
+            <a href="{{ path('app_login') }}" class="auth-link">
+                Déjà inscrit ? Connectez-vous
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %} 

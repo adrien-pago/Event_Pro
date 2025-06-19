@@ -1,14 +1,6 @@
-app_login:
-    path: /login
-    controller: App\Controller\SecurityController::login
-    methods: [GET]
-
-app_register:
-    path: /register
-    controller: App\Controller\SecurityController::register
-    methods: [GET, POST]
-
-app_home:
-    path: /
-    controller: App\Controller\SecurityController::login
-    methods: [GET]
+#Charger automatiquement toutes les routes définies par attributs (annotations) dans les contrôleurs
+controllers:
+    resource:
+        path: ../src/Controller/
+        namespace: App\Controller
+    type: attribute
