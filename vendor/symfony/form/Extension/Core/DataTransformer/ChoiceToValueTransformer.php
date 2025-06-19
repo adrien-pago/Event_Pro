@@ -22,9 +22,11 @@ use Symfony\Component\Form\Exception\TransformationFailedException;
  */
 class ChoiceToValueTransformer implements DataTransformerInterface
 {
-    public function __construct(
-        private ChoiceListInterface $choiceList,
-    ) {
+    private ChoiceListInterface $choiceList;
+
+    public function __construct(ChoiceListInterface $choiceList)
+    {
+        $this->choiceList = $choiceList;
     }
 
     public function transform(mixed $choice): mixed
@@ -45,7 +47,7 @@ class ChoiceToValueTransformer implements DataTransformerInterface
                 return null;
             }
 
-            throw new TransformationFailedException(\sprintf('The choice "%s" does not exist or is not unique.', $value));
+            throw new TransformationFailedException(sprintf('The choice "%s" does not exist or is not unique.', $value));
         }
 
         return current($choices);

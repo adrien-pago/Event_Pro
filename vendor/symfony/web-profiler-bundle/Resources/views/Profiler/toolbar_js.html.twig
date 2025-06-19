@@ -1,5 +1,4 @@
-<!-- START of Symfony Web Debug Toolbar -->
-<div id="sfwdt{{ token }}" class="sf-toolbar sf-toolbar-opened" role="region" aria-label="Symfony Web Debug Toolbar">
+<div id="sfwdt{{ token }}" class="sf-toolbar sf-display-none" role="region" aria-label="Symfony Web Debug Toolbar">
     {{ include('@WebProfiler/Profiler/toolbar.html.twig', {
         templates: {
             'request': '@WebProfiler/Profiler/cancel.html.twig'
@@ -10,7 +9,9 @@
     }) }}
 </div>
 
-<link rel="stylesheet"{% if csp_style_nonce %} nonce="{{ csp_style_nonce }}"{% endif %} href="{{ url('_wdt_stylesheet') }}" />
+<style{% if csp_style_nonce %} nonce="{{ csp_style_nonce }}"{% endif %}>
+    {{ include('@WebProfiler/Profiler/toolbar.css.twig') }}
+</style>
 
 {# CAUTION: the contents of this file are processed by Twig before loading
             them as JavaScript source code. Always use '/*' comments instead
@@ -50,9 +51,6 @@
             }
 
             var request = function(url, onSuccess, onError, payload, options, tries) {
-                url = new URL(url);
-                url.searchParams.set('XDEBUG_IGNORE', '1');
-                url = url.toString();
                 var xhr = window.XMLHttpRequest ? new XMLHttpRequest() : new ActiveXObject('Microsoft.XMLHTTP');
                 options = options || {};
                 options.retry = options.retry || false;
@@ -454,32 +452,60 @@
 
                 showToolbar: function(token) {
                     var sfwdt = this.getSfwdt(token);
+                    removeClass(sfwdt, 'sf-display-none');
 
-                    if ('closed' === getPreference('toolbar/displayState')) {
-                        addClass(sfwdt, 'sf-toolbar-closed');
-                        removeClass(sfwdt, 'sf-toolbar-opened');
+                    if (getPreference('toolbar/displayState') == 'none') {
+                        document.getElementById('sfToolbarMainContent-' + token).style.display = 'none';
+                        document.getElementById('sfToolbarClearer-' + token).style.display = 'none';
+                        document.getElementById('sfMiniToolbar-' + token).style.display = 'block';
                     } else {
-                        addClass(sfwdt, 'sf-toolbar-opened');
-                        removeClass(sfwdt, 'sf-toolbar-closed');
+                        document.getElementById('sfToolbarMainContent-' + token).style.display = 'block';
+                        document.getElementById('sfToolbarClearer-' + token).style.display = 'block';
+                        document.getElementById('sfMiniToolbar-' + token).style.display = 'none';
                     }
                 },
 
                 hideToolbar: function(token) {
                     var sfwdt = this.getSfwdt(token);
-                    addClass(sfwdt, 'sf-toolbar-closed');
-                    removeClass(sfwdt, 'sf-toolbar-opened');
+                    addClass(sfwdt, 'sf-display-none');
                 },
 
                 initToolbar: function(token) {
                     this.showToolbar(token);
 
-                    var toggleButton = document.querySelector(`#sfToolbarToggleButton-${token}`);
-                    addEventListener(toggleButton, 'click', function (event) {
+                    var hideButton = document.getElementById('sfToolbarHideButton-' + token);
+                    var hideButtonSvg = hideButton.querySelector('svg');
+                    hideButtonSvg.setAttribute('aria-hidden', 'true');
+                    hideButtonSvg.setAttribute('focusable', 'false');
+                    addEventListener(hideButton, 'click', function (event) {
                         event.preventDefault();
 
-                        const newState = 'opened' === getPreference('toolbar/displayState') ? 'closed' : 'opened';
-                        setPreference('toolbar/displayState', newState);
-                        'opened' === newState ? Sfjs.showToolbar(token) : Sfjs.hideToolbar(token);
+                        var p = this.parentNode;
+                        p.style.display = 'none';
+                        (p.previousElementSibling || p.previousSibling).style.display = 'none';
+                        document.getElementById('sfMiniToolbar-' + token).style.display = 'block';
+                        setPreference('toolbar/displayState', 'none');
+                    });
+
+                    var showButton = document.getElementById('sfToolbarMiniToggler-' + token);
+                    var showButtonSvg = showButton.querySelector('svg');
+                    showButtonSvg.setAttribute('aria-hidden', 'true');
+                    showButtonSvg.setAttribute('focusable', 'false');
+                    addEventListener(showButton, 'click', function (event) {
+                        event.preventDefault();
+
+                        var elem = this.parentNode;
+                        if (elem.style.display == 'none') {
+                            document.getElementById('sfToolbarMainContent-' + token).style.display = 'none';
+                            document.getElementById('sfToolbarClearer-' + token).style.display = 'none';
+                            elem.style.display = 'block';
+                        } else {
+                            document.getElementById('sfToolbarMainContent-' + token).style.display = 'block';
+                            document.getElementById('sfToolbarClearer-' + token).style.display = 'block';
+                            elem.style.display = 'none'
+                        }
+
+                        setPreference('toolbar/displayState', 'block');
                     });
                 },
 
@@ -628,4 +654,3 @@
 
     Sfjs.loadToolbar('{{ token }}');
 /*]]>*/</script>
-<!-- END of Symfony Web Debug Toolbar -->

@@ -95,7 +95,10 @@ class AccessTokenAuthenticator implements AuthenticatorInterface
         );
     }
 
-    public function setTranslator(?TranslatorInterface $translator): void
+    /**
+     * @return void
+     */
+    public function setTranslator(?TranslatorInterface $translator)
     {
         $this->translator = $translator;
     }
@@ -115,9 +118,9 @@ class AccessTokenAuthenticator implements AuthenticatorInterface
             if (null === $v || '' === $v) {
                 continue;
             }
-            $values[] = \sprintf('%s="%s"', $k, $v);
+            $values[] = sprintf('%s="%s"', $k, $v);
         }
 
-        return \sprintf('Bearer %s', implode(',', $values));
+        return sprintf('Bearer %s', implode(',', $values));
     }
 }

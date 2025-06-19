@@ -11,7 +11,6 @@
 
 namespace Symfony\Component\Security\Core\Authentication\Token;
 
-use Symfony\Component\Security\Core\User\EquatableInterface;
 use Symfony\Component\Security\Core\User\InMemoryUser;
 use Symfony\Component\Security\Core\User\UserInterface;
 
@@ -24,24 +23,24 @@ use Symfony\Component\Security\Core\User\UserInterface;
 abstract class AbstractToken implements TokenInterface, \Serializable
 {
     private ?UserInterface $user = null;
-    private array $roleNames;
+    private array $roleNames = [];
     private array $attributes = [];
 
     /**
      * @param string[] $roles An array of roles
+     *
+     * @throws \InvalidArgumentException
      */
     public function __construct(array $roles = [])
     {
-        $this->roleNames = [];
-
         foreach ($roles as $role) {
-            $this->roleNames[] = (string) $role;
+            $this->roleNames[] = $role;
         }
     }
 
     public function getRoleNames(): array
     {
-        return $this->roleNames ??= self::__construct($this->user->getRoles()) ?? $this->roleNames;
+        return $this->roleNames;
     }
 
     public function getUserIdentifier(): string
@@ -54,20 +53,19 @@ abstract class AbstractToken implements TokenInterface, \Serializable
         return $this->user;
     }
 
-    public function setUser(UserInterface $user): void
+    /**
+     * @return void
+     */
+    public function setUser(UserInterface $user)
     {
         $this->user = $user;
     }
 
     /**
-     * Removes sensitive information from the token.
-     *
-     * @deprecated since Symfony 7.3, erase credentials using the "__serialize()" method instead
+     * @return void
      */
-    public function eraseCredentials(): void
+    public function eraseCredentials()
     {
-        trigger_deprecation('symfony/security-core', '7.3', \sprintf('The "%s::eraseCredentials()" method is deprecated and will be removed in 8.0, erase credentials using the "__serialize()" method instead.', TokenInterface::class));
-
         if ($this->getUser() instanceof UserInterface) {
             $this->getUser()->eraseCredentials();
         }
@@ -90,13 +88,7 @@ abstract class AbstractToken implements TokenInterface, \Serializable
      */
     public function __serialize(): array
     {
-        $data = [$this->user, true, null, $this->attributes];
-
-        if (!$this->user instanceof EquatableInterface) {
-            $data[] = $this->roleNames;
-        }
-
-        return $data;
+        return [$this->user, true, null, $this->attributes, $this->roleNames];
     }
 
     /**
@@ -117,12 +109,7 @@ abstract class AbstractToken implements TokenInterface, \Serializable
      */
     public function __unserialize(array $data): void
     {
-        [$user, , , $this->attributes] = $data;
-
-        if (\array_key_exists(4, $data)) {
-            $this->roleNames = $data[4];
-        }
-
+        [$user, , , $this->attributes, $this->roleNames] = $data;
         $this->user = \is_string($user) ? new InMemoryUser($user, '', $this->roleNames, false) : $user;
     }
 
@@ -131,7 +118,10 @@ abstract class AbstractToken implements TokenInterface, \Serializable
         return $this->attributes;
     }
 
-    public function setAttributes(array $attributes): void
+    /**
+     * @return void
+     */
+    public function setAttributes(array $attributes)
     {
         $this->attributes = $attributes;
     }
@@ -144,13 +134,16 @@ abstract class AbstractToken implements TokenInterface, \Serializable
     public function getAttribute(string $name): mixed
     {
         if (!\array_key_exists($name, $this->attributes)) {
-            throw new \InvalidArgumentException(\sprintf('This token has no "%s" attribute.', $name));
+            throw new \InvalidArgumentException(sprintf('This token has no "%s" attribute.', $name));
         }
 
         return $this->attributes[$name];
     }
 
-    public function setAttribute(string $name, mixed $value): void
+    /**
+     * @return void
+     */
+    public function setAttribute(string $name, mixed $value)
     {
         $this->attributes[$name] = $value;
     }
@@ -165,7 +158,7 @@ abstract class AbstractToken implements TokenInterface, \Serializable
             $roles[] = $role;
         }
 
-        return \sprintf('%s(user="%s", roles="%s")', $class, $this->getUserIdentifier(), implode(', ', $roles));
+        return sprintf('%s(user="%s", roles="%s")', $class, $this->getUserIdentifier(), implode(', ', $roles));
     }
 
     /**

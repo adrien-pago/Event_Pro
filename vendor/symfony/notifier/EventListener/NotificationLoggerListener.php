@@ -28,7 +28,10 @@ class NotificationLoggerListener implements EventSubscriberInterface, ResetInter
         $this->events = new NotificationEvents();
     }
 
-    public function reset(): void
+    /**
+     * @return void
+     */
+    public function reset()
     {
         $this->events = new NotificationEvents();
     }

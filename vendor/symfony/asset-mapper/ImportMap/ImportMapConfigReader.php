@@ -12,7 +12,6 @@
 namespace Symfony\Component\AssetMapper\ImportMap;
 
 use Symfony\Component\AssetMapper\Exception\RuntimeException;
-use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Filesystem\Path;
 use Symfony\Component\VarExporter\VarExporter;
 
@@ -24,13 +23,11 @@ use Symfony\Component\VarExporter\VarExporter;
 class ImportMapConfigReader
 {
     private ImportMapEntries $rootImportMapEntries;
-    private readonly Filesystem $filesystem;
 
     public function __construct(
         private readonly string $importMapConfigPath,
         private readonly RemotePackageStorage $remotePackageStorage,
     ) {
-        $this->filesystem = new Filesystem();
     }
 
     public function getEntries(): ImportMapEntries
@@ -44,9 +41,28 @@ class ImportMapConfigReader
 
         $entries = new ImportMapEntries();
         foreach ($importMapConfig ?? [] as $importName => $data) {
-            $validKeys = ['path', 'version', 'type', 'entrypoint', 'package_specifier'];
+            $validKeys = ['path', 'version', 'type', 'entrypoint', 'url', 'package_specifier', 'downloaded_to', 'preload'];
             if ($invalidKeys = array_diff(array_keys($data), $validKeys)) {
-                throw new \InvalidArgumentException(\sprintf('The following keys are not valid for the importmap entry "%s": "%s". Valid keys are: "%s".', $importName, implode('", "', $invalidKeys), implode('", "', $validKeys)));
+                throw new \InvalidArgumentException(sprintf('The following keys are not valid for the importmap entry "%s": "%s". Valid keys are: "%s".', $importName, implode('", "', $invalidKeys), implode('", "', $validKeys)));
+            }
+
+            // should solve itself when the config is written again
+            if (isset($data['url'])) {
+                trigger_deprecation('symfony/asset-mapper', '6.4', 'The "url" option is deprecated, use "version" instead.');
+            }
+
+            // should solve itself when the config is written again
+            if (isset($data['downloaded_to'])) {
+                trigger_deprecation('symfony/asset-mapper', '6.4', 'The "downloaded_to" option is deprecated and will be removed.');
+                // remove deprecated downloaded_to
+                unset($data['downloaded_to']);
+            }
+
+            // should solve itself when the config is written again
+            if (isset($data['preload'])) {
+                trigger_deprecation('symfony/asset-mapper', '6.4', 'The "preload" option is deprecated, preloading is automatically done.');
+                // remove deprecated preload
+                unset($data['preload']);
             }
 
             $type = isset($data['type']) ? ImportMapType::tryFrom($data['type']) : ImportMapType::JS;
@@ -54,10 +70,10 @@ class ImportMapConfigReader
 
             if (isset($data['path'])) {
                 if (isset($data['version'])) {
-                    throw new RuntimeException(\sprintf('The importmap entry "%s" cannot have both a "path" and "version" option.', $importName));
+                    throw new RuntimeException(sprintf('The importmap entry "%s" cannot have both a "path" and "version" option.', $importName));
                 }
                 if (isset($data['package_specifier'])) {
-                    throw new RuntimeException(\sprintf('The importmap entry "%s" cannot have both a "path" and "package_specifier" option.', $importName));
+                    throw new RuntimeException(sprintf('The importmap entry "%s" cannot have both a "path" and "package_specifier" option.', $importName));
                 }
 
                 $entries->add(ImportMapEntry::createLocal($importName, $type, $data['path'], $isEntrypoint));
@@ -66,9 +82,13 @@ class ImportMapConfigReader
             }
 
             $version = $data['version'] ?? null;
+            if (null === $version && ($data['url'] ?? null)) {
+                // BC layer for 6.3->6.4
+                $version = $this->extractVersionFromLegacyUrl($data['url']);
+            }
 
             if (null === $version) {
-                throw new RuntimeException(\sprintf('The importmap entry "%s" must have either a "path" or "version" option.', $importName));
+                throw new RuntimeException(sprintf('The importmap entry "%s" must have either a "path" or "version" option.', $importName));
             }
 
             $packageModuleSpecifier = $data['package_specifier'] ?? $importName;
@@ -104,7 +124,7 @@ class ImportMapConfigReader
         }
 
         $map = class_exists(VarExporter::class) ? VarExporter::export($importMapConfig) : var_export($importMapConfig, true);
-        $this->filesystem->dumpFile($this->importMapConfigPath, <<<EOF
+        file_put_contents($this->importMapConfigPath, <<<EOF
         <?php
 
         /**
@@ -175,22 +195,18 @@ class ImportMapConfigReader
         return \dirname($this->importMapConfigPath);
     }
 
-    /**
-     * @deprecated since Symfony 7.1, use ImportMapEntry::splitPackageNameAndFilePath() instead
-     */
-    public static function splitPackageNameAndFilePath(string $packageName): array
+    private function extractVersionFromLegacyUrl(string $url): ?string
     {
-        trigger_deprecation('symfony/asset-mapper', '7.1', 'The method "%s()" is deprecated and will be removed in 8.0. Use ImportMapEntry::splitPackageNameAndFilePath() instead.', __METHOD__);
-
-        $filePath = '';
-        $i = strpos($packageName, '/');
-
-        if ($i && (!str_starts_with($packageName, '@') || $i = strpos($packageName, '/', $i + 1))) {
-            // @vendor/package/filepath or package/filepath
-            $filePath = substr($packageName, $i);
-            $packageName = substr($packageName, 0, $i);
+        // URL pattern https://ga.jspm.io/npm:bootstrap@5.3.2/dist/js/bootstrap.esm.js
+        if (false === $lastAt = strrpos($url, '@')) {
+            return null;
         }
 
-        return [$packageName, $filePath];
+        $nextSlash = strpos($url, '/', $lastAt);
+        if (false === $nextSlash) {
+            return null;
+        }
+
+        return substr($url, $lastAt + 1, $nextSlash - $lastAt - 1);
     }
 }

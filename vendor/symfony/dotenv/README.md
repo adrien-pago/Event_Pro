@@ -7,8 +7,8 @@ accessible via `$_SERVER` or `$_ENV`.
 Getting Started
 ---------------
 
-```bash
-composer require symfony/dotenv
+```
+$ composer require symfony/dotenv
 ```
 
 ```php

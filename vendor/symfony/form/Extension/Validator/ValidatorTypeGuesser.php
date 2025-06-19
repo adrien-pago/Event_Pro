@@ -57,9 +57,11 @@ use Symfony\Component\Validator\Mapping\Factory\MetadataFactoryInterface;
 
 class ValidatorTypeGuesser implements FormTypeGuesserInterface
 {
-    public function __construct(
-        private MetadataFactoryInterface $metadataFactory,
-    ) {
+    private MetadataFactoryInterface $metadataFactory;
+
+    public function __construct(MetadataFactoryInterface $metadataFactory)
+    {
+        $this->metadataFactory = $metadataFactory;
     }
 
     public function guessType(string $class, string $property): ?TypeGuess
@@ -230,7 +232,7 @@ class ValidatorTypeGuesser implements FormTypeGuesserInterface
         switch ($constraint::class) {
             case Length::class:
                 if (is_numeric($constraint->min)) {
-                    return new ValueGuess(\sprintf('.{%s,}', (string) $constraint->min), Guess::LOW_CONFIDENCE);
+                    return new ValueGuess(sprintf('.{%s,}', (string) $constraint->min), Guess::LOW_CONFIDENCE);
                 }
                 break;
 
@@ -244,7 +246,7 @@ class ValidatorTypeGuesser implements FormTypeGuesserInterface
 
             case Range::class:
                 if (is_numeric($constraint->min)) {
-                    return new ValueGuess(\sprintf('.{%s,}', \strlen((string) $constraint->min)), Guess::LOW_CONFIDENCE);
+                    return new ValueGuess(sprintf('.{%s,}', \strlen((string) $constraint->min)), Guess::LOW_CONFIDENCE);
                 }
                 break;
 

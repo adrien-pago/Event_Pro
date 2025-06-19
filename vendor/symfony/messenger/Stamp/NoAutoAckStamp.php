@@ -18,9 +18,11 @@ use Symfony\Component\Messenger\Handler\HandlerDescriptor;
  */
 final class NoAutoAckStamp implements NonSendableStampInterface
 {
-    public function __construct(
-        private HandlerDescriptor $handlerDescriptor,
-    ) {
+    private HandlerDescriptor $handlerDescriptor;
+
+    public function __construct(HandlerDescriptor $handlerDescriptor)
+    {
+        $this->handlerDescriptor = $handlerDescriptor;
     }
 
     public function getHandlerDescriptor(): HandlerDescriptor

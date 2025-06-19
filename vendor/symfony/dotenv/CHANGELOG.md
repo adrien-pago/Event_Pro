@@ -1,11 +1,6 @@
 CHANGELOG
 =========
 
-7.1
----
-
- * Add `SYMFONY_DOTENV_PATH` variable with the path to the `.env` file loaded by `Dotenv::loadEnv()` or `Dotenv::bootEnv()`
-
 6.2
 ---
 

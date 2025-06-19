@@ -23,11 +23,15 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
  */
 final class Texter implements TexterInterface
 {
-    public function __construct(
-        private TransportInterface $transport,
-        private ?MessageBusInterface $bus = null,
-        private ?EventDispatcherInterface $dispatcher = null,
-    ) {
+    private TransportInterface $transport;
+    private ?MessageBusInterface $bus;
+    private ?EventDispatcherInterface $dispatcher;
+
+    public function __construct(TransportInterface $transport, ?MessageBusInterface $bus = null, ?EventDispatcherInterface $dispatcher = null)
+    {
+        $this->transport = $transport;
+        $this->bus = $bus;
+        $this->dispatcher = $dispatcher;
     }
 
     public function __toString(): string

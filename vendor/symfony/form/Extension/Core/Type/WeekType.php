@@ -28,7 +28,10 @@ class WeekType extends AbstractType
         'choice' => ChoiceType::class,
     ];
 
-    public function buildForm(FormBuilderInterface $builder, array $options): void
+    /**
+     * @return void
+     */
+    public function buildForm(FormBuilderInterface $builder, array $options)
     {
         if ('string' === $options['input']) {
             $builder->addModelTransformer(new WeekToArrayTransformer());
@@ -79,7 +82,10 @@ class WeekType extends AbstractType
         }
     }
 
-    public function buildView(FormView $view, FormInterface $form, array $options): void
+    /**
+     * @return void
+     */
+    public function buildView(FormView $view, FormInterface $form, array $options)
     {
         $view->vars['widget'] = $options['widget'];
 
@@ -88,7 +94,10 @@ class WeekType extends AbstractType
         }
     }
 
-    public function configureOptions(OptionsResolver $resolver): void
+    /**
+     * @return void
+     */
+    public function configureOptions(OptionsResolver $resolver)
     {
         $compound = static fn (Options $options) => 'single_text' !== $options['widget'];
 
@@ -112,8 +121,10 @@ class WeekType extends AbstractType
 
         $choiceTranslationDomainNormalizer = static function (Options $options, $choiceTranslationDomain) {
             if (\is_array($choiceTranslationDomain)) {
+                $default = false;
+
                 return array_replace(
-                    ['year' => false, 'week' => false],
+                    ['year' => $default, 'week' => $default],
                     $choiceTranslationDomain
                 );
             }
@@ -142,7 +153,7 @@ class WeekType extends AbstractType
         $resolver->setNormalizer('choice_translation_domain', $choiceTranslationDomainNormalizer);
         $resolver->setNormalizer('html5', static function (Options $options, $html5) {
             if ($html5 && 'single_text' !== $options['widget']) {
-                throw new LogicException(\sprintf('The "widget" option of "%s" must be set to "single_text" when the "html5" option is enabled.', self::class));
+                throw new LogicException(sprintf('The "widget" option of "%s" must be set to "single_text" when the "html5" option is enabled.', self::class));
             }
 
             return $html5;

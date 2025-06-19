@@ -17,6 +17,7 @@ use Monolog\Handler\AbstractHandler;
 use Monolog\Handler\FormattableHandlerTrait;
 use Monolog\Handler\ProcessableHandlerTrait;
 use Monolog\Level;
+use Monolog\Logger;
 use Monolog\LogRecord;
 use Symfony\Component\HttpClient\HttpClient;
 use Symfony\Contracts\HttpClient\Exception\ExceptionInterface;
@@ -40,37 +41,41 @@ use Symfony\Contracts\HttpClient\ResponseInterface;
  * stack is recommended.
  *
  * @author Grégoire Pineau <lyrixx@lyrixx.info>
+ *
+ * @final since Symfony 6.1
  */
-final class ElasticsearchLogstashHandler extends AbstractHandler
+class ElasticsearchLogstashHandler extends AbstractHandler
 {
+    use CompatibilityHandler;
+
     use FormattableHandlerTrait;
     use ProcessableHandlerTrait;
 
+    private string $endpoint;
+    private string $index;
     private HttpClientInterface $client;
+    private string $elasticsearchVersion;
 
     /**
      * @var \SplObjectStorage<ResponseInterface, null>
      */
     private \SplObjectStorage $responses;
 
-    public function __construct(
-        private string $endpoint = 'http://127.0.0.1:9200',
-        private string $index = 'monolog',
-        ?HttpClientInterface $client = null,
-        string|int|Level $level = Level::Debug,
-        bool $bubble = true,
-        private string $elasticsearchVersion = '1.0.0',
-    ) {
+    public function __construct(string $endpoint = 'http://127.0.0.1:9200', string $index = 'monolog', ?HttpClientInterface $client = null, string|int|Level $level = Logger::DEBUG, bool $bubble = true, string $elasticsearchVersion = '1.0.0')
+    {
         if (!interface_exists(HttpClientInterface::class)) {
-            throw new \LogicException(\sprintf('The "%s" handler needs an HTTP client. Try running "composer require symfony/http-client".', __CLASS__));
+            throw new \LogicException(sprintf('The "%s" handler needs an HTTP client. Try running "composer require symfony/http-client".', __CLASS__));
         }
 
         parent::__construct($level, $bubble);
+        $this->endpoint = $endpoint;
+        $this->index = $index;
         $this->client = $client ?: HttpClient::create(['timeout' => 1]);
         $this->responses = new \SplObjectStorage();
+        $this->elasticsearchVersion = $elasticsearchVersion;
     }
 
-    public function handle(LogRecord $record): bool
+    private function doHandle(array|LogRecord $record): bool
     {
         if (!$this->isHandling($record)) {
             return false;
@@ -92,6 +97,12 @@ final class ElasticsearchLogstashHandler extends AbstractHandler
 
     protected function getDefaultFormatter(): FormatterInterface
     {
+        // Monolog 1.X
+        if (\defined(LogstashFormatter::class.'::V1')) {
+            return new LogstashFormatter('application', null, null, 'ctxt_', LogstashFormatter::V1);
+        }
+
+        // Monolog 2.X
         return new LogstashFormatter('application');
     }
 
@@ -143,7 +154,10 @@ final class ElasticsearchLogstashHandler extends AbstractHandler
         throw new \BadMethodCallException('Cannot serialize '.__CLASS__);
     }
 
-    public function __wakeup(): void
+    /**
+     * @return void
+     */
+    public function __wakeup()
     {
         throw new \BadMethodCallException('Cannot unserialize '.__CLASS__);
     }
@@ -168,7 +182,7 @@ final class ElasticsearchLogstashHandler extends AbstractHandler
                 }
             } catch (ExceptionInterface $e) {
                 $this->responses->detach($response);
-                error_log(\sprintf("Could not push logs to Elasticsearch:\n%s", (string) $e));
+                error_log(sprintf("Could not push logs to Elasticsearch:\n%s", (string) $e));
             }
         }
     }

@@ -12,7 +12,6 @@
 namespace Symfony\Bridge\Monolog\Processor;
 
 use Monolog\LogRecord;
-use Monolog\ResettableInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpKernel\Event\FinishRequestEvent;
 use Symfony\Component\HttpKernel\Event\RequestEvent;
@@ -26,20 +25,21 @@ use Symfony\Contracts\Service\ResetInterface;
  *
  * @final
  */
-class RouteProcessor implements EventSubscriberInterface, ResetInterface, ResettableInterface
+class RouteProcessor implements EventSubscriberInterface, ResetInterface
 {
     private array $routeData = [];
+    private bool $includeParams;
 
-    public function __construct(
-        private bool $includeParams = true,
-    ) {
+    public function __construct(bool $includeParams = true)
+    {
+        $this->includeParams = $includeParams;
         $this->reset();
     }
 
-    public function __invoke(LogRecord $record): LogRecord
+    public function __invoke(array|LogRecord $record): array|LogRecord
     {
-        if ($this->routeData && !isset($record->extra['requests'])) {
-            $record->extra['requests'] = array_values($this->routeData);
+        if ($this->routeData && !isset($record['extra']['requests'])) {
+            $record['extra']['requests'] = array_values($this->routeData);
         }
 
         return $record;

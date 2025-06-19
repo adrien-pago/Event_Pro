@@ -23,9 +23,11 @@ use Symfony\Component\Form\Exception\TransformationFailedException;
  */
 class IntlTimeZoneToStringTransformer implements DataTransformerInterface
 {
-    public function __construct(
-        private bool $multiple = false,
-    ) {
+    private bool $multiple;
+
+    public function __construct(bool $multiple = false)
+    {
+        $this->multiple = $multiple;
     }
 
     public function transform(mixed $intlTimeZone): mixed
@@ -70,7 +72,7 @@ class IntlTimeZoneToStringTransformer implements DataTransformerInterface
         $intlTimeZone = \IntlTimeZone::createTimeZone($value);
 
         if ('Etc/Unknown' === $intlTimeZone->getID()) {
-            throw new TransformationFailedException(\sprintf('Unknown timezone identifier "%s".', $value));
+            throw new TransformationFailedException(sprintf('Unknown timezone identifier "%s".', $value));
         }
 
         return $intlTimeZone;

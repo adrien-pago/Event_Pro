@@ -22,13 +22,19 @@ use Symfony\Component\Validator\Exception\UnexpectedTypeException;
 
 class UserPasswordValidator extends ConstraintValidator
 {
-    public function __construct(
-        private TokenStorageInterface $tokenStorage,
-        private PasswordHasherFactoryInterface $hasherFactory,
-    ) {
+    private TokenStorageInterface $tokenStorage;
+    private PasswordHasherFactoryInterface $hasherFactory;
+
+    public function __construct(TokenStorageInterface $tokenStorage, PasswordHasherFactoryInterface $hasherFactory)
+    {
+        $this->tokenStorage = $tokenStorage;
+        $this->hasherFactory = $hasherFactory;
     }
 
-    public function validate(mixed $password, Constraint $constraint): void
+    /**
+     * @return void
+     */
+    public function validate(mixed $password, Constraint $constraint)
     {
         if (!$constraint instanceof UserPassword) {
             throw new UnexpectedTypeException($constraint, UserPassword::class);
@@ -49,7 +55,7 @@ class UserPasswordValidator extends ConstraintValidator
         $user = $this->tokenStorage->getToken()->getUser();
 
         if (!$user instanceof PasswordAuthenticatedUserInterface) {
-            throw new ConstraintDefinitionException(\sprintf('The "%s" class must implement the "%s" interface.', get_debug_type($user), PasswordAuthenticatedUserInterface::class));
+            throw new ConstraintDefinitionException(sprintf('The "%s" class must implement the "%s" interface.', get_debug_type($user), PasswordAuthenticatedUserInterface::class));
         }
 
         $hasher = $this->hasherFactory->getPasswordHasher($user);

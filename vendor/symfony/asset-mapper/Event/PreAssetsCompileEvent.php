@@ -21,9 +21,11 @@ use Symfony\Contracts\EventDispatcher\Event;
  */
 class PreAssetsCompileEvent extends Event
 {
-    public function __construct(
-        private OutputInterface $output,
-    ) {
+    private OutputInterface $output;
+
+    public function __construct(OutputInterface $output)
+    {
+        $this->output = $output;
     }
 
     public function getOutput(): OutputInterface

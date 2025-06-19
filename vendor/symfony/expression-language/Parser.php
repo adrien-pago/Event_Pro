@@ -12,7 +12,7 @@
 namespace Symfony\Component\ExpressionLanguage;
 
 /**
- * Parses a token stream.
+ * Parsers a token stream.
  *
  * This parser implements a "Precedence climbing" algorithm.
  *
@@ -26,29 +26,26 @@ class Parser
     public const OPERATOR_LEFT = 1;
     public const OPERATOR_RIGHT = 2;
 
-    public const IGNORE_UNKNOWN_VARIABLES = 1;
-    public const IGNORE_UNKNOWN_FUNCTIONS = 2;
-
     private TokenStream $stream;
     private array $unaryOperators;
     private array $binaryOperators;
-    private array $names;
-    private int $flags = 0;
+    private array $functions;
+    private ?array $names;
+    private bool $lint = false;
 
-    public function __construct(
-        private array $functions,
-    ) {
+    public function __construct(array $functions)
+    {
+        $this->functions = $functions;
+
         $this->unaryOperators = [
             'not' => ['precedence' => 50],
             '!' => ['precedence' => 50],
             '-' => ['precedence' => 500],
             '+' => ['precedence' => 500],
-            '~' => ['precedence' => 500],
         ];
         $this->binaryOperators = [
             'or' => ['precedence' => 10, 'associativity' => self::OPERATOR_LEFT],
             '||' => ['precedence' => 10, 'associativity' => self::OPERATOR_LEFT],
-            'xor' => ['precedence' => 12, 'associativity' => self::OPERATOR_LEFT],
             'and' => ['precedence' => 15, 'associativity' => self::OPERATOR_LEFT],
             '&&' => ['precedence' => 15, 'associativity' => self::OPERATOR_LEFT],
             '|' => ['precedence' => 16, 'associativity' => self::OPERATOR_LEFT],
@@ -69,8 +66,6 @@ class Parser
             'ends with' => ['precedence' => 20, 'associativity' => self::OPERATOR_LEFT],
             'matches' => ['precedence' => 20, 'associativity' => self::OPERATOR_LEFT],
             '..' => ['precedence' => 25, 'associativity' => self::OPERATOR_LEFT],
-            '<<' => ['precedence' => 25, 'associativity' => self::OPERATOR_LEFT],
-            '>>' => ['precedence' => 25, 'associativity' => self::OPERATOR_LEFT],
             '+' => ['precedence' => 30, 'associativity' => self::OPERATOR_LEFT],
             '-' => ['precedence' => 30, 'associativity' => self::OPERATOR_LEFT],
             '~' => ['precedence' => 40, 'associativity' => self::OPERATOR_LEFT],
@@ -94,51 +89,40 @@ class Parser
      * variable 'container' can be used in the expression
      * but the compiled code will use 'this'.
      *
-     * @param int-mask-of<Parser::IGNORE_*> $flags
-     *
      * @throws SyntaxError
      */
-    public function parse(TokenStream $stream, array $names = [], int $flags = 0): Node\Node
+    public function parse(TokenStream $stream, array $names = []): Node\Node
     {
-        return $this->doParse($stream, $names, $flags);
+        $this->lint = false;
+
+        return $this->doParse($stream, $names);
     }
 
     /**
      * Validates the syntax of an expression.
      *
      * The syntax of the passed expression will be checked, but not parsed.
-     * If you want to skip checking dynamic variable names, pass `Parser::IGNORE_UNKNOWN_VARIABLES` instead of the array.
-     *
-     * @param int-mask-of<Parser::IGNORE_*> $flags
+     * If you want to skip checking dynamic variable names, pass `null` instead of the array.
      *
      * @throws SyntaxError When the passed expression is invalid
      */
-    public function lint(TokenStream $stream, ?array $names = [], int $flags = 0): void
+    public function lint(TokenStream $stream, ?array $names = []): void
     {
-        if (null === $names) {
-            trigger_deprecation('symfony/expression-language', '7.1', 'Passing "null" as the second argument of "%s()" is deprecated, pass "%s::IGNORE_UNKNOWN_VARIABLES" instead as a third argument.', __METHOD__, __CLASS__);
-
-            $flags |= self::IGNORE_UNKNOWN_VARIABLES;
-            $names = [];
-        }
-
-        $this->doParse($stream, $names, $flags);
+        $this->lint = true;
+        $this->doParse($stream, $names);
     }
 
     /**
-     * @param int-mask-of<Parser::IGNORE_*> $flags
-     *
      * @throws SyntaxError
      */
-    private function doParse(TokenStream $stream, array $names, int $flags): Node\Node
+    private function doParse(TokenStream $stream, ?array $names = []): Node\Node
     {
-        $this->flags = $flags;
         $this->stream = $stream;
         $this->names = $names;
 
         $node = $this->parseExpression();
         if (!$stream->isEOF()) {
-            throw new SyntaxError(\sprintf('Unexpected token "%s" of value "%s".', $stream->current->type, $stream->current->value), $stream->current->cursor, $stream->getExpression());
+            throw new SyntaxError(sprintf('Unexpected token "%s" of value "%s".', $stream->current->type, $stream->current->value), $stream->current->cursor, $stream->getExpression());
         }
 
         unset($this->stream, $this->names);
@@ -146,7 +130,10 @@ class Parser
         return $node;
     }
 
-    public function parseExpression(int $precedence = 0): Node\Node
+    /**
+     * @return Node\Node
+     */
+    public function parseExpression(int $precedence = 0)
     {
         $expr = $this->getPrimary();
         $token = $this->stream->current;
@@ -167,7 +154,10 @@ class Parser
         return $expr;
     }
 
-    protected function getPrimary(): Node\Node
+    /**
+     * @return Node\Node
+     */
+    protected function getPrimary()
     {
         $token = $this->stream->current;
 
@@ -190,7 +180,10 @@ class Parser
         return $this->parsePrimaryExpression();
     }
 
-    protected function parseConditionalExpression(Node\Node $expr): Node\Node
+    /**
+     * @return Node\Node
+     */
+    protected function parseConditionalExpression(Node\Node $expr)
     {
         while ($this->stream->current->test(Token::PUNCTUATION_TYPE, '??')) {
             $this->stream->next();
@@ -221,7 +214,10 @@ class Parser
         return $expr;
     }
 
-    public function parsePrimaryExpression(): Node\Node
+    /**
+     * @return Node\Node
+     */
+    public function parsePrimaryExpression()
     {
         $token = $this->stream->current;
         switch ($token->type) {
@@ -242,19 +238,15 @@ class Parser
 
                     default:
                         if ('(' === $this->stream->current->value) {
-                            if (!($this->flags & self::IGNORE_UNKNOWN_FUNCTIONS) && false === isset($this->functions[$token->value])) {
-                                throw new SyntaxError(\sprintf('The function "%s" does not exist.', $token->value), $token->cursor, $this->stream->getExpression(), $token->value, array_keys($this->functions));
+                            if (false === isset($this->functions[$token->value])) {
+                                throw new SyntaxError(sprintf('The function "%s" does not exist.', $token->value), $token->cursor, $this->stream->getExpression(), $token->value, array_keys($this->functions));
                             }
 
                             $node = new Node\FunctionNode($token->value, $this->parseArguments());
                         } else {
-                            if (!($this->flags & self::IGNORE_UNKNOWN_VARIABLES)) {
+                            if (!$this->lint || \is_array($this->names)) {
                                 if (!\in_array($token->value, $this->names, true)) {
-                                    if ($this->stream->current->test(Token::PUNCTUATION_TYPE, '??')) {
-                                        return new Node\NullCoalescedNameNode($token->value);
-                                    }
-
-                                    throw new SyntaxError(\sprintf('Variable "%s" is not valid.', $token->value), $token->cursor, $this->stream->getExpression(), $token->value, $this->names);
+                                    throw new SyntaxError(sprintf('Variable "%s" is not valid.', $token->value), $token->cursor, $this->stream->getExpression(), $token->value, $this->names);
                                 }
 
                                 // is the name used in the compiled code different
@@ -283,14 +275,17 @@ class Parser
                 } elseif ($token->test(Token::PUNCTUATION_TYPE, '{')) {
                     $node = $this->parseHashExpression();
                 } else {
-                    throw new SyntaxError(\sprintf('Unexpected token "%s" of value "%s".', $token->type, $token->value), $token->cursor, $this->stream->getExpression());
+                    throw new SyntaxError(sprintf('Unexpected token "%s" of value "%s".', $token->type, $token->value), $token->cursor, $this->stream->getExpression());
                 }
         }
 
         return $this->parsePostfixExpression($node);
     }
 
-    public function parseArrayExpression(): Node\ArrayNode
+    /**
+     * @return Node\ArrayNode
+     */
+    public function parseArrayExpression()
     {
         $this->stream->expect(Token::PUNCTUATION_TYPE, '[', 'An array element was expected');
 
@@ -314,7 +309,10 @@ class Parser
         return $node;
     }
 
-    public function parseHashExpression(): Node\ArrayNode
+    /**
+     * @return Node\ArrayNode
+     */
+    public function parseHashExpression()
     {
         $this->stream->expect(Token::PUNCTUATION_TYPE, '{', 'A hash element was expected');
 
@@ -345,7 +343,7 @@ class Parser
             } else {
                 $current = $this->stream->current;
 
-                throw new SyntaxError(\sprintf('A hash key must be a quoted string, a number, a name, or an expression enclosed in parentheses (unexpected token "%s" of value "%s".', $current->type, $current->value), $current->cursor, $this->stream->getExpression());
+                throw new SyntaxError(sprintf('A hash key must be a quoted string, a number, a name, or an expression enclosed in parentheses (unexpected token "%s" of value "%s".', $current->type, $current->value), $current->cursor, $this->stream->getExpression());
             }
 
             $this->stream->expect(Token::PUNCTUATION_TYPE, ':', 'A hash key must be followed by a colon (:)');
@@ -358,7 +356,10 @@ class Parser
         return $node;
     }
 
-    public function parsePostfixExpression(Node\Node $node): Node\GetAttrNode|Node\Node
+    /**
+     * @return Node\GetAttrNode|Node\Node
+     */
+    public function parsePostfixExpression(Node\Node $node)
     {
         $token = $this->stream->current;
         while (Token::PUNCTUATION_TYPE == $token->type) {
@@ -417,8 +418,10 @@ class Parser
 
     /**
      * Parses arguments.
+     *
+     * @return Node\Node
      */
-    public function parseArguments(): Node\Node
+    public function parseArguments()
     {
         $args = [];
         $this->stream->expect(Token::PUNCTUATION_TYPE, '(', 'A list of arguments must begin with an opening parenthesis');

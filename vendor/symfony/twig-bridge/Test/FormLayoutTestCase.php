@@ -19,7 +19,6 @@ use Symfony\Component\Form\FormView;
 use Symfony\Component\Form\Test\FormIntegrationTestCase;
 use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
 use Twig\Environment;
-use Twig\Extension\ExtensionInterface;
 use Twig\Loader\FilesystemLoader;
 
 /**
@@ -58,7 +57,7 @@ abstract class FormLayoutTestCase extends FormIntegrationTestCase
             // the top level
             $dom->loadXML('<root>'.$html.'</root>');
         } catch (\Exception $e) {
-            $this->fail(\sprintf(
+            $this->fail(sprintf(
                 "Failed loading HTML:\n\n%s\n\nError: %s",
                 $html,
                 $e->getMessage()
@@ -69,7 +68,7 @@ abstract class FormLayoutTestCase extends FormIntegrationTestCase
 
         if ($nodeList->length != $count) {
             $dom->formatOutput = true;
-            $this->fail(\sprintf(
+            $this->fail(sprintf(
                 "Failed asserting that \n\n%s\n\nmatches exactly %s. Matches %s in \n\n%s",
                 $expression,
                 1 == $count ? 'once' : $count.' times',
@@ -82,27 +81,15 @@ abstract class FormLayoutTestCase extends FormIntegrationTestCase
         }
     }
 
-    /**
-     * @return string[]
-     */
     abstract protected function getTemplatePaths(): array;
 
-    /**
-     * @return ExtensionInterface[]
-     */
     abstract protected function getTwigExtensions(): array;
 
-    /**
-     * @return array<string, mixed>
-     */
     protected function getTwigGlobals(): array
     {
         return [];
     }
 
-    /**
-     * @return string[]
-     */
     abstract protected function getThemes(): array;
 
     protected function renderForm(FormView $view, array $vars = []): string

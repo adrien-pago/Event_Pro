@@ -16,24 +16,30 @@ use Monolog\Level;
 use Monolog\Logger;
 use Monolog\LogRecord;
 use Symfony\Component\Notifier\Notification\Notification;
+use Symfony\Component\Notifier\Notifier;
 use Symfony\Component\Notifier\NotifierInterface;
 
 /**
  * Uses Notifier as a log handler.
  *
  * @author Fabien Potencier <fabien@symfony.com>
+ *
+ * @final since Symfony 6.1
  */
-final class NotifierHandler extends AbstractHandler
+class NotifierHandler extends AbstractHandler
 {
-    public function __construct(
-        private NotifierInterface $notifier,
-        string|int|Level $level = Level::Error,
-        bool $bubble = true,
-    ) {
-        parent::__construct(Logger::toMonologLevel($level)->isLowerThan(Level::Error) ? Level::Error : $level, $bubble);
+    use CompatibilityHandler;
+
+    private NotifierInterface $notifier;
+
+    public function __construct(NotifierInterface $notifier, string|int|Level $level = Logger::ERROR, bool $bubble = true)
+    {
+        $this->notifier = $notifier;
+
+        parent::__construct(Logger::toMonologLevel($level) < Logger::ERROR ? Logger::ERROR : $level, $bubble);
     }
 
-    public function handle(LogRecord $record): bool
+    private function doHandle(array|LogRecord $record): bool
     {
         if (!$this->isHandling($record)) {
             return false;
@@ -54,13 +60,13 @@ final class NotifierHandler extends AbstractHandler
     private function notify(array $records): void
     {
         $record = $this->getHighestRecord($records);
-        if (($record->context['exception'] ?? null) instanceof \Throwable) {
-            $notification = Notification::fromThrowable($record->context['exception']);
+        if (($record['context']['exception'] ?? null) instanceof \Throwable) {
+            $notification = Notification::fromThrowable($record['context']['exception']);
         } else {
-            $notification = new Notification($record->message);
+            $notification = new Notification($record['message']);
         }
 
-        $notification->importanceFromLogLevelName($record->level->getName());
+        $notification->importanceFromLogLevelName(Logger::getLevelName($record['level']));
 
         $this->notifier->send($notification, ...$this->notifier->getAdminRecipients());
     }
@@ -69,7 +75,7 @@ final class NotifierHandler extends AbstractHandler
     {
         $highestRecord = null;
         foreach ($records as $record) {
-            if (null === $highestRecord || $highestRecord->level->isLowerThan($record->level)) {
+            if (null === $highestRecord || $highestRecord['level'] < $record['level']) {
                 $highestRecord = $record;
             }
         }

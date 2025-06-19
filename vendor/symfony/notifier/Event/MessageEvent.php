@@ -19,10 +19,13 @@ use Symfony\Contracts\EventDispatcher\Event;
  */
 final class MessageEvent extends Event
 {
-    public function __construct(
-        private MessageInterface $message,
-        private bool $queued = false,
-    ) {
+    private MessageInterface $message;
+    private bool $queued;
+
+    public function __construct(MessageInterface $message, bool $queued = false)
+    {
+        $this->message = $message;
+        $this->queued = $queued;
     }
 
     public function getMessage(): MessageInterface

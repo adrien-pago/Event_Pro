@@ -39,11 +39,15 @@ class RouterDebugCommand extends Command
 {
     use BuildDebugContainerTrait;
 
-    public function __construct(
-        private RouterInterface $router,
-        private ?FileLinkFormatter $fileLinkFormatter = null,
-    ) {
+    private RouterInterface $router;
+    private ?FileLinkFormatter $fileLinkFormatter;
+
+    public function __construct(RouterInterface $router, ?FileLinkFormatter $fileLinkFormatter = null)
+    {
         parent::__construct();
+
+        $this->router = $router;
+        $this->fileLinkFormatter = $fileLinkFormatter;
     }
 
     protected function configure(): void
@@ -53,18 +57,14 @@ class RouterDebugCommand extends Command
                 new InputArgument('name', InputArgument::OPTIONAL, 'A route name'),
                 new InputOption('show-controllers', null, InputOption::VALUE_NONE, 'Show assigned controllers in overview'),
                 new InputOption('show-aliases', null, InputOption::VALUE_NONE, 'Show aliases in overview'),
-                new InputOption('format', null, InputOption::VALUE_REQUIRED, \sprintf('The output format ("%s")', implode('", "', $this->getAvailableFormatOptions())), 'txt'),
+                new InputOption('format', null, InputOption::VALUE_REQUIRED, sprintf('The output format ("%s")', implode('", "', $this->getAvailableFormatOptions())), 'txt'),
                 new InputOption('raw', null, InputOption::VALUE_NONE, 'To output raw route(s)'),
-                new InputOption('method', null, InputOption::VALUE_REQUIRED, 'Filter by HTTP method', '', ['GET', 'POST', 'PUT', 'DELETE', 'PATCH']),
             ])
             ->setHelp(<<<'EOF'
 The <info>%command.name%</info> displays the configured routes:
 
   <info>php %command.full_name%</info>
 
-The <info>--format</info> option specifies the format of the command output:
-
-  <info>php %command.full_name% --format=json</info>
 EOF
             )
         ;
@@ -77,7 +77,6 @@ EOF
     {
         $io = new SymfonyStyle($input, $output);
         $name = $input->getArgument('name');
-        $method = strtoupper($input->getOption('method'));
         $helper = new DescriptorHelper($this->fileLinkFormatter);
         $routes = $this->router->getRouteCollection();
         $container = null;
@@ -87,7 +86,7 @@ EOF
 
         if ($name) {
             $route = $routes->get($name);
-            $matchingRoutes = $this->findRouteNameContaining($name, $routes, $method);
+            $matchingRoutes = $this->findRouteNameContaining($name, $routes);
 
             if (!$input->isInteractive() && !$route && \count($matchingRoutes) > 1) {
                 $helper->describe($io, $this->findRouteContaining($name, $routes), [
@@ -96,7 +95,6 @@ EOF
                     'show_controllers' => $input->getOption('show-controllers'),
                     'show_aliases' => $input->getOption('show-aliases'),
                     'output' => $io,
-                    'method' => $method,
                 ]);
 
                 return 0;
@@ -109,7 +107,7 @@ EOF
             }
 
             if (!$route) {
-                throw new InvalidArgumentException(\sprintf('The route "%s" does not exist.', $name));
+                throw new InvalidArgumentException(sprintf('The route "%s" does not exist.', $name));
             }
 
             $helper->describe($io, $route, [
@@ -127,18 +125,17 @@ EOF
                 'show_aliases' => $input->getOption('show-aliases'),
                 'output' => $io,
                 'container' => $container,
-                'method' => $method,
             ]);
         }
 
         return 0;
     }
 
-    private function findRouteNameContaining(string $name, RouteCollection $routes, string $method): array
+    private function findRouteNameContaining(string $name, RouteCollection $routes): array
     {
         $foundRoutesNames = [];
         foreach ($routes as $routeName => $route) {
-            if (false !== stripos($routeName, $name) && (!$method || !$route->getMethods() || \in_array($method, $route->getMethods(), true))) {
+            if (false !== stripos($routeName, $name)) {
                 $foundRoutesNames[] = $routeName;
             }
         }
@@ -171,7 +168,6 @@ EOF
         return $foundRoutes;
     }
 
-    /** @return string[] */
     private function getAvailableFormatOptions(): array
     {
         return (new DescriptorHelper())->getFormats();

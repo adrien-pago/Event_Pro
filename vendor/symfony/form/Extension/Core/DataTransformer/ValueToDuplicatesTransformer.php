@@ -21,9 +21,11 @@ use Symfony\Component\Form\Exception\TransformationFailedException;
  */
 class ValueToDuplicatesTransformer implements DataTransformerInterface
 {
-    public function __construct(
-        private array $keys,
-    ) {
+    private array $keys;
+
+    public function __construct(array $keys)
+    {
+        $this->keys = $keys;
     }
 
     /**
@@ -71,7 +73,7 @@ class ValueToDuplicatesTransformer implements DataTransformerInterface
                 return null;
             }
 
-            throw new TransformationFailedException(\sprintf('The keys "%s" should not be empty.', implode('", "', $emptyKeys)));
+            throw new TransformationFailedException(sprintf('The keys "%s" should not be empty.', implode('", "', $emptyKeys)));
         }
 
         return $result;

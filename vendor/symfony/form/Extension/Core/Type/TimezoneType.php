@@ -25,7 +25,10 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class TimezoneType extends AbstractType
 {
-    public function buildForm(FormBuilderInterface $builder, array $options): void
+    /**
+     * @return void
+     */
+    public function buildForm(FormBuilderInterface $builder, array $options)
     {
         if ('datetimezone' === $options['input']) {
             $builder->addModelTransformer(new DateTimeZoneToStringTransformer($options['multiple']));
@@ -34,7 +37,10 @@ class TimezoneType extends AbstractType
         }
     }
 
-    public function configureOptions(OptionsResolver $resolver): void
+    /**
+     * @return void
+     */
+    public function configureOptions(OptionsResolver $resolver)
     {
         $resolver->setDefaults([
             'intl' => false,
@@ -43,7 +49,7 @@ class TimezoneType extends AbstractType
 
                 if ($options['intl']) {
                     if (!class_exists(Intl::class)) {
-                        throw new LogicException(\sprintf('The "symfony/intl" component is required to use "%s" with option "intl=true". Try running "composer require symfony/intl".', static::class));
+                        throw new LogicException(sprintf('The "symfony/intl" component is required to use "%s" with option "intl=true". Try running "composer require symfony/intl".', static::class));
                     }
 
                     $choiceTranslationLocale = $options['choice_translation_locale'];

@@ -21,17 +21,22 @@ class ValidationFailedException extends RuntimeException implements EnvelopeAwar
 {
     use EnvelopeAwareExceptionTrait;
 
-    public function __construct(
-        private object $violatingMessage,
-        private ConstraintViolationListInterface $violations,
-        ?Envelope $envelope = null,
-    ) {
+    private ConstraintViolationListInterface $violations;
+    private object $violatingMessage;
+
+    public function __construct(object $violatingMessage, ConstraintViolationListInterface $violations, ?Envelope $envelope = null)
+    {
+        $this->violatingMessage = $violatingMessage;
+        $this->violations = $violations;
         $this->envelope = $envelope;
 
-        parent::__construct(\sprintf('Message of type "%s" failed validation.', $this->violatingMessage::class));
+        parent::__construct(sprintf('Message of type "%s" failed validation.', $this->violatingMessage::class));
     }
 
-    public function getViolatingMessage(): object
+    /**
+     * @return object
+     */
+    public function getViolatingMessage()
     {
         return $this->violatingMessage;
     }

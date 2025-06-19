@@ -19,12 +19,17 @@ use Symfony\Component\Messenger\Exception\HandlerFailedException;
  */
 final class ErrorDetailsStamp implements StampInterface
 {
-    public function __construct(
-        private string $exceptionClass,
-        private int|string $exceptionCode,
-        private string $exceptionMessage,
-        private ?FlattenException $flattenException = null,
-    ) {
+    private string $exceptionClass;
+    private int|string $exceptionCode;
+    private string $exceptionMessage;
+    private ?FlattenException $flattenException;
+
+    public function __construct(string $exceptionClass, int|string $exceptionCode, string $exceptionMessage, ?FlattenException $flattenException = null)
+    {
+        $this->exceptionClass = $exceptionClass;
+        $this->exceptionCode = $exceptionCode;
+        $this->exceptionMessage = $exceptionMessage;
+        $this->flattenException = $flattenException;
     }
 
     public static function create(\Throwable $throwable): self

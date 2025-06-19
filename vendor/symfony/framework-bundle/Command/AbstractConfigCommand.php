@@ -28,7 +28,10 @@ use Symfony\Component\DependencyInjection\Extension\ExtensionInterface;
  */
 abstract class AbstractConfigCommand extends ContainerDebugCommand
 {
-    protected function listBundles(OutputInterface|StyleInterface $output): void
+    /**
+     * @return void
+     */
+    protected function listBundles(OutputInterface|StyleInterface $output)
     {
         $title = 'Available registered bundles with their extension alias if available';
         $headers = ['Bundle name', 'Extension alias'];
@@ -114,7 +117,7 @@ abstract class AbstractConfigCommand extends ContainerDebugCommand
         foreach ($bundles as $bundle) {
             if ($name === $bundle->getName()) {
                 if (!$bundle->getContainerExtension()) {
-                    throw new \LogicException(\sprintf('Bundle "%s" does not have a container extension.', $name));
+                    throw new \LogicException(sprintf('Bundle "%s" does not have a container extension.', $name));
                 }
 
                 return $bundle->getContainerExtension();
@@ -144,26 +147,29 @@ abstract class AbstractConfigCommand extends ContainerDebugCommand
         }
 
         if (!str_ends_with($name, 'Bundle')) {
-            $message = \sprintf('No extensions with configuration available for "%s".', $name);
+            $message = sprintf('No extensions with configuration available for "%s".', $name);
         } else {
-            $message = \sprintf('No extension with alias "%s" is enabled.', $name);
+            $message = sprintf('No extension with alias "%s" is enabled.', $name);
         }
 
         if (isset($guess) && $minScore < 3) {
-            $message .= \sprintf("\n\nDid you mean \"%s\"?", $guess);
+            $message .= sprintf("\n\nDid you mean \"%s\"?", $guess);
         }
 
         throw new LogicException($message);
     }
 
-    public function validateConfiguration(ExtensionInterface $extension, mixed $configuration): void
+    /**
+     * @return void
+     */
+    public function validateConfiguration(ExtensionInterface $extension, mixed $configuration)
     {
         if (!$configuration) {
-            throw new \LogicException(\sprintf('The extension with alias "%s" does not have its getConfiguration() method setup.', $extension->getAlias()));
+            throw new \LogicException(sprintf('The extension with alias "%s" does not have its getConfiguration() method setup.', $extension->getAlias()));
         }
 
         if (!$configuration instanceof ConfigurationInterface) {
-            throw new \LogicException(\sprintf('Configuration class "%s" should implement ConfigurationInterface in order to be dumpable.', get_debug_type($configuration)));
+            throw new \LogicException(sprintf('Configuration class "%s" should implement ConfigurationInterface in order to be dumpable.', get_debug_type($configuration)));
         }
     }
 

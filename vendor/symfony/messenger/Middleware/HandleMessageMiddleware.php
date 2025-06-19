@@ -77,7 +77,7 @@ class HandleMessageMiddleware implements MiddlewareInterface
                     $result = $this->callHandler($handler, $message, $ack, $envelope->last(HandlerArgumentsStamp::class));
 
                     if (!\is_int($result) || 0 > $result) {
-                        throw new LogicException(\sprintf('A handler implementing BatchHandlerInterface must return the size of the current batch as a positive integer, "%s" returned from "%s".', \is_int($result) ? $result : get_debug_type($result), get_debug_type($batchHandler)));
+                        throw new LogicException(sprintf('A handler implementing BatchHandlerInterface must return the size of the current batch as a positive integer, "%s" returned from "%s".', \is_int($result) ? $result : get_debug_type($result), get_debug_type($batchHandler)));
                     }
 
                     if (!$ack->isAcknowledged()) {
@@ -114,7 +114,7 @@ class HandleMessageMiddleware implements MiddlewareInterface
 
         if (null === $handler && !$alreadyHandled) {
             if (!$this->allowNoHandlers) {
-                throw new NoHandlerForMessageException(\sprintf('No handler for message "%s".', $context['class']));
+                throw new NoHandlerForMessageException(sprintf('No handler for message "%s".', $context['class']));
             }
 
             $this->logger?->info('No handler for message {class}', $context);
@@ -139,7 +139,7 @@ class HandleMessageMiddleware implements MiddlewareInterface
         return false;
     }
 
-    private function callHandler(\Closure $handler, object $message, ?Acknowledger $ack, ?HandlerArgumentsStamp $handlerArgumentsStamp): mixed
+    private function callHandler(callable $handler, object $message, ?Acknowledger $ack, ?HandlerArgumentsStamp $handlerArgumentsStamp): mixed
     {
         $arguments = [$message];
         if (null !== $ack) {

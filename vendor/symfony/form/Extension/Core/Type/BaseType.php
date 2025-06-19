@@ -29,13 +29,19 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
  */
 abstract class BaseType extends AbstractType
 {
-    public function buildForm(FormBuilderInterface $builder, array $options): void
+    /**
+     * @return void
+     */
+    public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder->setDisabled($options['disabled']);
         $builder->setAutoInitialize($options['auto_initialize']);
     }
 
-    public function buildView(FormView $view, FormInterface $form, array $options): void
+    /**
+     * @return void
+     */
+    public function buildView(FormView $view, FormInterface $form, array $options)
     {
         $name = $form->getName();
         $blockName = $options['block_name'] ?: $form->getName();
@@ -46,9 +52,9 @@ abstract class BaseType extends AbstractType
 
         if ($view->parent) {
             if ('' !== ($parentFullName = $view->parent->vars['full_name'])) {
-                $id = \sprintf('%s_%s', $view->parent->vars['id'], $name);
-                $fullName = \sprintf('%s[%s]', $parentFullName, $name);
-                $uniqueBlockPrefix = \sprintf('%s_%s', $view->parent->vars['unique_block_prefix'], $blockName);
+                $id = sprintf('%s_%s', $view->parent->vars['id'], $name);
+                $fullName = sprintf('%s[%s]', $parentFullName, $name);
+                $uniqueBlockPrefix = sprintf('%s_%s', $view->parent->vars['unique_block_prefix'], $blockName);
             } else {
                 $id = $name;
                 $fullName = $name;
@@ -119,7 +125,10 @@ abstract class BaseType extends AbstractType
         ]);
     }
 
-    public function configureOptions(OptionsResolver $resolver): void
+    /**
+     * @return void
+     */
+    public function configureOptions(OptionsResolver $resolver)
     {
         $resolver->setDefaults([
             'block_name' => null,

@@ -1,23 +1,6 @@
 CHANGELOG
 =========
 
-7.3
----
-
- * Add support for pre-compressing assets with Brotli, Zstandard, Zopfli, and gzip
- * Add option `--dry-run` to `importmap:require` command
- * `ImportMapRequireCommand` now takes `projectDir` as a required third constructor argument
-
-7.2
----
-
- * Shorten the public digest of mapped assets to 7 characters
-
-7.1
----
-
- * Deprecate `ImportMapConfigReader::splitPackageNameAndFilePath()`, use `ImportMapEntry::splitPackageNameAndFilePath()` instead
-
 6.4
 ---
 

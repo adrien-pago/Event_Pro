@@ -11,7 +11,6 @@
 
 namespace Symfony\Component\AssetMapper;
 
-use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Filesystem\Path;
 
 /**
@@ -19,12 +18,8 @@ use Symfony\Component\Filesystem\Path;
  */
 class CompiledAssetMapperConfigReader
 {
-    private readonly Filesystem $filesystem;
-
-    public function __construct(
-        private readonly string $directory,
-    ) {
-        $this->filesystem = new Filesystem();
+    public function __construct(private readonly string $directory)
+    {
     }
 
     public function configExists(string $filename): bool
@@ -34,13 +29,14 @@ class CompiledAssetMapperConfigReader
 
     public function loadConfig(string $filename): array
     {
-        return json_decode($this->filesystem->readFile(Path::join($this->directory, $filename)), true, 512, \JSON_THROW_ON_ERROR);
+        return json_decode(file_get_contents(Path::join($this->directory, $filename)), true, 512, \JSON_THROW_ON_ERROR);
     }
 
     public function saveConfig(string $filename, array $data): string
     {
         $path = Path::join($this->directory, $filename);
-        $this->filesystem->dumpFile($path, json_encode($data, \JSON_PRETTY_PRINT | \JSON_THROW_ON_ERROR));
+        @mkdir(\dirname($path), 0777, true);
+        file_put_contents($path, json_encode($data, \JSON_PRETTY_PRINT | \JSON_THROW_ON_ERROR));
 
         return $path;
     }
@@ -50,7 +46,7 @@ class CompiledAssetMapperConfigReader
         $path = Path::join($this->directory, $filename);
 
         if (is_file($path)) {
-            $this->filesystem->remove($path);
+            unlink($path);
         }
     }
 }

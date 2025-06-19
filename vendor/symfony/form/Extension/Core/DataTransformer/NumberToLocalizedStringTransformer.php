@@ -25,17 +25,19 @@ use Symfony\Component\Form\Exception\TransformationFailedException;
  */
 class NumberToLocalizedStringTransformer implements DataTransformerInterface
 {
-    protected bool $grouping;
-    protected int $roundingMode;
+    protected $grouping;
 
-    public function __construct(
-        private ?int $scale = null,
-        ?bool $grouping = false,
-        ?int $roundingMode = \NumberFormatter::ROUND_HALFUP,
-        private ?string $locale = null,
-    ) {
+    protected $roundingMode;
+
+    private ?int $scale;
+    private ?string $locale;
+
+    public function __construct(?int $scale = null, ?bool $grouping = false, ?int $roundingMode = \NumberFormatter::ROUND_HALFUP, ?string $locale = null)
+    {
+        $this->scale = $scale;
         $this->grouping = $grouping ?? false;
         $this->roundingMode = $roundingMode ?? \NumberFormatter::ROUND_HALFUP;
+        $this->locale = $locale;
     }
 
     /**
@@ -64,7 +66,9 @@ class NumberToLocalizedStringTransformer implements DataTransformerInterface
         }
 
         // Convert non-breaking and narrow non-breaking spaces to normal ones
-        return str_replace(["\xc2\xa0", "\xe2\x80\xaf"], ' ', $value);
+        $value = str_replace(["\xc2\xa0", "\xe2\x80\xaf"], ' ', $value);
+
+        return $value;
     }
 
     /**
@@ -143,7 +147,7 @@ class NumberToLocalizedStringTransformer implements DataTransformerInterface
             $remainder = trim($remainder, " \t\n\r\0\x0b\xc2\xa0");
 
             if ('' !== $remainder) {
-                throw new TransformationFailedException(\sprintf('The number contains unrecognized characters: "%s".', $remainder));
+                throw new TransformationFailedException(sprintf('The number contains unrecognized characters: "%s".', $remainder));
             }
         }
 
@@ -185,21 +189,35 @@ class NumberToLocalizedStringTransformer implements DataTransformerInterface
      */
     private function round(int|float $number): int|float
     {
-        if (null !== $this->scale) {
+        if (null !== $this->scale && null !== $this->roundingMode) {
             // shift number to maintain the correct scale during rounding
             $roundingCoef = 10 ** $this->scale;
             // string representation to avoid rounding errors, similar to bcmul()
             $number = (string) ($number * $roundingCoef);
 
-            $number = match ($this->roundingMode) {
-                \NumberFormatter::ROUND_CEILING => ceil($number),
-                \NumberFormatter::ROUND_FLOOR => floor($number),
-                \NumberFormatter::ROUND_UP => $number > 0 ? ceil($number) : floor($number),
-                \NumberFormatter::ROUND_DOWN => $number > 0 ? floor($number) : ceil($number),
-                \NumberFormatter::ROUND_HALFEVEN => round($number, 0, \PHP_ROUND_HALF_EVEN),
-                \NumberFormatter::ROUND_HALFUP => round($number, 0, \PHP_ROUND_HALF_UP),
-                \NumberFormatter::ROUND_HALFDOWN => round($number, 0, \PHP_ROUND_HALF_DOWN),
-            };
+            switch ($this->roundingMode) {
+                case \NumberFormatter::ROUND_CEILING:
+                    $number = ceil($number);
+                    break;
+                case \NumberFormatter::ROUND_FLOOR:
+                    $number = floor($number);
+                    break;
+                case \NumberFormatter::ROUND_UP:
+                    $number = $number > 0 ? ceil($number) : floor($number);
+                    break;
+                case \NumberFormatter::ROUND_DOWN:
+                    $number = $number > 0 ? floor($number) : ceil($number);
+                    break;
+                case \NumberFormatter::ROUND_HALFEVEN:
+                    $number = round($number, 0, \PHP_ROUND_HALF_EVEN);
+                    break;
+                case \NumberFormatter::ROUND_HALFUP:
+                    $number = round($number, 0, \PHP_ROUND_HALF_UP);
+                    break;
+                case \NumberFormatter::ROUND_HALFDOWN:
+                    $number = round($number, 0, \PHP_ROUND_HALF_DOWN);
+                    break;
+            }
 
             $number = 1 === $roundingCoef ? (int) $number : $number / $roundingCoef;
         }

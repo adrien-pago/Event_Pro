@@ -31,10 +31,13 @@ use Symfony\Component\HttpKernel\CacheWarmer\WarmableInterface;
 #[AsCommand(name: 'cache:warmup', description: 'Warm up an empty cache')]
 class CacheWarmupCommand extends Command
 {
-    public function __construct(
-        private CacheWarmerAggregate $cacheWarmer,
-    ) {
+    private CacheWarmerAggregate $cacheWarmer;
+
+    public function __construct(CacheWarmerAggregate $cacheWarmer)
+    {
         parent::__construct();
+
+        $this->cacheWarmer = $cacheWarmer;
     }
 
     protected function configure(): void
@@ -58,7 +61,7 @@ EOF
         $io = new SymfonyStyle($input, $output);
 
         $kernel = $this->getApplication()->getKernel();
-        $io->comment(\sprintf('Warming up the cache for the <info>%s</info> environment with debug <info>%s</info>', $kernel->getEnvironment(), var_export($kernel->isDebug(), true)));
+        $io->comment(sprintf('Warming up the cache for the <info>%s</info> environment with debug <info>%s</info>', $kernel->getEnvironment(), var_export($kernel->isDebug(), true)));
 
         if (!$input->getOption('no-optional-warmers')) {
             $this->cacheWarmer->enableOptionalWarmers();
@@ -76,7 +79,7 @@ EOF
             Preloader::append($preloadFile, $preload);
         }
 
-        $io->success(\sprintf('Cache for the "%s" environment (debug=%s) was successfully warmed.', $kernel->getEnvironment(), var_export($kernel->isDebug(), true)));
+        $io->success(sprintf('Cache for the "%s" environment (debug=%s) was successfully warmed.', $kernel->getEnvironment(), var_export($kernel->isDebug(), true)));
 
         return 0;
     }

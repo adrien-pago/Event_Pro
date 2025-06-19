@@ -31,9 +31,11 @@ use Symfony\Component\Security\Http\Event\CheckPassportEvent;
  */
 class CheckCredentialsListener implements EventSubscriberInterface
 {
-    public function __construct(
-        private PasswordHasherFactoryInterface $hasherFactory,
-    ) {
+    private PasswordHasherFactoryInterface $hasherFactory;
+
+    public function __construct(PasswordHasherFactoryInterface $hasherFactory)
+    {
+        $this->hasherFactory = $hasherFactory;
     }
 
     public function checkPassport(CheckPassportEvent $event): void
@@ -44,7 +46,7 @@ class CheckCredentialsListener implements EventSubscriberInterface
             $user = $passport->getUser();
 
             if (!$user instanceof PasswordAuthenticatedUserInterface) {
-                throw new \LogicException(\sprintf('Class "%s" must implement "%s" for using password-based authentication.', get_debug_type($user), PasswordAuthenticatedUserInterface::class));
+                throw new \LogicException(sprintf('Class "%s" must implement "%s" for using password-based authentication.', get_debug_type($user), PasswordAuthenticatedUserInterface::class));
             }
 
             /** @var PasswordCredentials $badge */

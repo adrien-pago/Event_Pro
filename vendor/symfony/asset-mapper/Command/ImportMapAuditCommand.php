@@ -15,8 +15,6 @@ use Symfony\Component\AssetMapper\ImportMap\ImportMapAuditor;
 use Symfony\Component\AssetMapper\ImportMap\ImportMapPackageAuditVulnerability;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
-use Symfony\Component\Console\Completion\CompletionInput;
-use Symfony\Component\Console\Completion\CompletionSuggestions;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -43,19 +41,12 @@ class ImportMapAuditCommand extends Command
 
     protected function configure(): void
     {
-        $this
-            ->addOption(
-                name: 'format',
-                mode: InputOption::VALUE_REQUIRED,
-                description: \sprintf('The output format ("%s")', implode(', ', $this->getAvailableFormatOptions())),
-                default: 'txt',
-            )
-            ->setHelp(<<<'EOT'
-The <info>--format</info> option specifies the format of the command output:
-
-  <info>php %command.full_name% --format=json</info>
-EOT
-            );
+        $this->addOption(
+            name: 'format',
+            mode: InputOption::VALUE_REQUIRED,
+            description: sprintf('The output format ("%s")', implode(', ', $this->getAvailableFormatOptions())),
+            default: 'txt',
+        );
     }
 
     protected function initialize(InputInterface $input, OutputInterface $output): void
@@ -72,7 +63,7 @@ EOT
         return match ($format) {
             'txt' => $this->displayTxt($audit),
             'json' => $this->displayJson($audit),
-            default => throw new \InvalidArgumentException(\sprintf('Supported formats are "%s".', implode('", "', $this->getAvailableFormatOptions()))),
+            default => throw new \InvalidArgumentException(sprintf('Supported formats are "%s".', implode('", "', $this->getAvailableFormatOptions()))),
         };
     }
 
@@ -88,7 +79,7 @@ EOT
             }
             foreach ($packageAudit->vulnerabilities as $vulnerability) {
                 $rows[] = [
-                    \sprintf('<fg=%s>%s</>', self::SEVERITY_COLORS[$vulnerability->severity] ?? 'default', ucfirst($vulnerability->severity)),
+                    sprintf('<fg=%s>%s</>', self::SEVERITY_COLORS[$vulnerability->severity] ?? 'default', ucfirst($vulnerability->severity)),
                     $vulnerability->summary,
                     $packageAudit->package,
                     $packageAudit->version ?? 'n/a',
@@ -122,7 +113,7 @@ EOT
             $this->io->newLine();
         }
 
-        $this->io->text(\sprintf('%d package%s found: %d audited / %d skipped',
+        $this->io->text(sprintf('%d package%s found: %d audited / %d skipped',
             $packagesCount,
             1 === $packagesCount ? '' : 's',
             $packagesCount - $packagesWithoutVersionCount,
@@ -130,7 +121,7 @@ EOT
         ));
 
         if (0 < $packagesWithoutVersionCount) {
-            $this->io->warning(\sprintf('Unable to retrieve versions for package%s: %s',
+            $this->io->warning(sprintf('Unable to retrieve versions for package%s: %s',
                 1 === $packagesWithoutVersionCount ? '' : 's',
                 implode(', ', $packagesWithoutVersion)
             ));
@@ -143,10 +134,10 @@ EOT
                 if (!$count) {
                     continue;
                 }
-                $vulnerabilitySummary[] = \sprintf('%d %s', $count, ucfirst($severity));
+                $vulnerabilitySummary[] = sprintf('%d %s', $count, ucfirst($severity));
                 $vulnerabilityCount += $count;
             }
-            $this->io->text(\sprintf('%d vulnerabilit%s found: %s',
+            $this->io->text(sprintf('%d vulnerabilit%s found: %s',
                 $vulnerabilityCount,
                 1 === $vulnerabilityCount ? 'y' : 'ies',
                 implode(' / ', $vulnerabilitySummary),
@@ -189,14 +180,6 @@ EOT
         return 0 < array_sum($json['summary']) ? self::FAILURE : self::SUCCESS;
     }
 
-    public function complete(CompletionInput $input, CompletionSuggestions $suggestions): void
-    {
-        if ($input->mustSuggestOptionValuesFor('format')) {
-            $suggestions->suggestValues($this->getAvailableFormatOptions());
-        }
-    }
-
-    /** @return string[] */
     private function getAvailableFormatOptions(): array
     {
         return ['txt', 'json'];

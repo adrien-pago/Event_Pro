@@ -45,11 +45,17 @@ abstract class AbstractFailedMessagesCommand extends Command
 {
     protected const DEFAULT_TRANSPORT_OPTION = 'choose';
 
-    public function __construct(
-        private ?string $globalFailureReceiverName,
-        protected ServiceProviderInterface $failureTransports,
-        protected ?PhpSerializer $phpSerializer = null,
-    ) {
+    protected ServiceProviderInterface $failureTransports;
+    protected ?PhpSerializer $phpSerializer;
+
+    private ?string $globalFailureReceiverName;
+
+    public function __construct(?string $globalFailureReceiverName, ServiceProviderInterface $failureTransports, ?PhpSerializer $phpSerializer = null)
+    {
+        $this->failureTransports = $failureTransports;
+        $this->globalFailureReceiverName = $globalFailureReceiverName;
+        $this->phpSerializer = $phpSerializer;
+
         parent::__construct();
     }
 
@@ -120,7 +126,7 @@ abstract class AbstractFailedMessagesCommand extends Command
         $redeliveryStamps = $envelope->all(RedeliveryStamp::class);
         $io->writeln(' Message history:');
         foreach ($redeliveryStamps as $redeliveryStamp) {
-            $io->writeln(\sprintf('  * Message failed at <info>%s</info> and was redelivered', $redeliveryStamp->getRedeliveredAt()->format('Y-m-d H:i:s')));
+            $io->writeln(sprintf('  * Message failed at <info>%s</info> and was redelivered', $redeliveryStamp->getRedeliveredAt()->format('Y-m-d H:i:s')));
         }
         $io->newLine();
 
@@ -148,7 +154,7 @@ abstract class AbstractFailedMessagesCommand extends Command
             if (1 === $receiver->getMessageCount()) {
                 $io->writeln('There is <comment>1</comment> message pending in the failure transport.');
             } else {
-                $io->writeln(\sprintf('There are <comment>%d</comment> messages pending in the failure transport.', $receiver->getMessageCount()));
+                $io->writeln(sprintf('There are <comment>%d</comment> messages pending in the failure transport.', $receiver->getMessageCount()));
             }
         }
     }
@@ -156,11 +162,11 @@ abstract class AbstractFailedMessagesCommand extends Command
     protected function getReceiver(?string $name = null): ReceiverInterface
     {
         if (null === $name ??= $this->globalFailureReceiverName) {
-            throw new InvalidArgumentException(\sprintf('No default failure transport is defined. Available transports are: "%s".', implode('", "', array_keys($this->failureTransports->getProvidedServices()))));
+            throw new InvalidArgumentException(sprintf('No default failure transport is defined. Available transports are: "%s".', implode('", "', array_keys($this->failureTransports->getProvidedServices()))));
         }
 
         if (!$this->failureTransports->has($name)) {
-            throw new InvalidArgumentException(\sprintf('The "%s" failure transport was not found. Available transports are: "%s".', $name, implode('", "', array_keys($this->failureTransports->getProvidedServices()))));
+            throw new InvalidArgumentException(sprintf('The "%s" failure transport was not found. Available transports are: "%s".', $name, implode('", "', array_keys($this->failureTransports->getProvidedServices()))));
         }
 
         return $this->failureTransports->get($name);
@@ -182,7 +188,6 @@ abstract class AbstractFailedMessagesCommand extends Command
                 Caster::PREFIX_VIRTUAL.'file' => $flattenException->getFile(),
                 Caster::PREFIX_VIRTUAL.'line' => $flattenException->getLine(),
                 Caster::PREFIX_VIRTUAL.'trace' => new TraceStub($flattenException->getTrace()),
-                Caster::PREFIX_VIRTUAL.'previous' => $flattenException->getPrevious(),
             ];
         }]);
 
@@ -195,9 +200,9 @@ abstract class AbstractFailedMessagesCommand extends Command
         $failureTransportsCount = \count($failureTransports);
         if ($failureTransportsCount > 1) {
             $io->writeln([
-                \sprintf('> Loading messages from the <comment>global</comment> failure transport <comment>%s</comment>.', $failureTransportName),
+                sprintf('> Loading messages from the <comment>global</comment> failure transport <comment>%s</comment>.', $failureTransportName),
                 '> To use a different failure transport, pass <comment>--transport=</comment>.',
-                \sprintf('> Available failure transports are: <comment>%s</comment>', implode(', ', $failureTransports)),
+                sprintf('> Available failure transports are: <comment>%s</comment>', implode(', ', $failureTransports)),
                 "\n",
             ]);
         }
@@ -234,6 +239,8 @@ abstract class AbstractFailedMessagesCommand extends Command
                 $ids[] = $this->getMessageId($envelope);
             }
             $suggestions->suggestValues($ids);
+
+            return;
         }
     }
 }

@@ -37,5 +37,5 @@ interface FirewallMapInterface
      *
      * @return array{iterable<mixed, callable>, ExceptionListener, LogoutListener}
      */
-    public function getListeners(Request $request): array;
+    public function getListeners(Request $request);
 }

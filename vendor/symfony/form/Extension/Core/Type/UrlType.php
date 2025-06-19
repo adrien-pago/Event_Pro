@@ -16,19 +16,24 @@ use Symfony\Component\Form\Extension\Core\EventListener\FixUrlProtocolListener;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\Form\FormView;
-use Symfony\Component\OptionsResolver\Options;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class UrlType extends AbstractType
 {
-    public function buildForm(FormBuilderInterface $builder, array $options): void
+    /**
+     * @return void
+     */
+    public function buildForm(FormBuilderInterface $builder, array $options)
     {
         if (null !== $options['default_protocol']) {
             $builder->addEventSubscriber(new FixUrlProtocolListener($options['default_protocol']));
         }
     }
 
-    public function buildView(FormView $view, FormInterface $form, array $options): void
+    /**
+     * @return void
+     */
+    public function buildView(FormView $view, FormInterface $form, array $options)
     {
         if ($options['default_protocol']) {
             $view->vars['attr']['inputmode'] = 'url';
@@ -36,14 +41,13 @@ class UrlType extends AbstractType
         }
     }
 
-    public function configureOptions(OptionsResolver $resolver): void
+    /**
+     * @return void
+     */
+    public function configureOptions(OptionsResolver $resolver)
     {
         $resolver->setDefaults([
-            'default_protocol' => static function (Options $options) {
-                trigger_deprecation('symfony/form', '7.1', 'Not configuring the "default_protocol" option when using the UrlType is deprecated. It will default to "null" in 8.0.');
-
-                return 'http';
-            },
+            'default_protocol' => 'http',
             'invalid_message' => 'Please enter a valid URL.',
         ]);
 

@@ -45,7 +45,7 @@ class GenericLinkProvider implements EvolvableLinkProviderInterface
         $links = [];
 
         foreach ($this->links as $link) {
-            if (\in_array($rel, $link->getRels(), true)) {
+            if (\in_array($rel, $link->getRels())) {
                 $links[] = $link;
             }
         }

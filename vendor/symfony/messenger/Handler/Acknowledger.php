@@ -18,6 +18,7 @@ use Symfony\Component\Messenger\Exception\LogicException;
  */
 class Acknowledger
 {
+    private string $handlerClass;
     private ?\Closure $ack;
     private ?\Throwable $error = null;
     private mixed $result = null;
@@ -25,10 +26,9 @@ class Acknowledger
     /**
      * @param \Closure(\Throwable|null, mixed):void|null $ack
      */
-    public function __construct(
-        private string $handlerClass,
-        ?\Closure $ack = null,
-    ) {
+    public function __construct(string $handlerClass, ?\Closure $ack = null)
+    {
+        $this->handlerClass = $handlerClass;
         $this->ack = $ack ?? static function () {};
     }
 
@@ -63,14 +63,14 @@ class Acknowledger
     public function __destruct()
     {
         if (null !== $this->ack) {
-            throw new LogicException(\sprintf('The acknowledger was not called by the "%s" batch handler.', $this->handlerClass));
+            throw new LogicException(sprintf('The acknowledger was not called by the "%s" batch handler.', $this->handlerClass));
         }
     }
 
     private function doAck(?\Throwable $e = null, mixed $result = null): void
     {
         if (!$ack = $this->ack) {
-            throw new LogicException(\sprintf('The acknowledger cannot be called twice by the "%s" batch handler.', $this->handlerClass));
+            throw new LogicException(sprintf('The acknowledger cannot be called twice by the "%s" batch handler.', $this->handlerClass));
         }
         $this->ack = null;
         $this->error = $e;

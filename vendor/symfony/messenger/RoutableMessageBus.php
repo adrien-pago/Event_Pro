@@ -25,10 +25,13 @@ use Symfony\Component\Messenger\Stamp\BusNameStamp;
  */
 class RoutableMessageBus implements MessageBusInterface
 {
-    public function __construct(
-        private ContainerInterface $busLocator,
-        private ?MessageBusInterface $fallbackBus = null,
-    ) {
+    private ContainerInterface $busLocator;
+    private ?MessageBusInterface $fallbackBus;
+
+    public function __construct(ContainerInterface $busLocator, ?MessageBusInterface $fallbackBus = null)
+    {
+        $this->busLocator = $busLocator;
+        $this->fallbackBus = $fallbackBus;
     }
 
     public function dispatch(object $envelope, array $stamps = []): Envelope
@@ -57,7 +60,7 @@ class RoutableMessageBus implements MessageBusInterface
     public function getMessageBus(string $busName): MessageBusInterface
     {
         if (!$this->busLocator->has($busName)) {
-            throw new InvalidArgumentException(\sprintf('Bus named "%s" does not exist.', $busName));
+            throw new InvalidArgumentException(sprintf('Bus named "%s" does not exist.', $busName));
         }
 
         return $this->busLocator->get($busName);

@@ -103,12 +103,14 @@ class FormDataExtractor implements FormDataExtractorInterface
                     continue;
                 }
 
-                $errorData['trace'][] = $cause;
                 if ($cause instanceof \Exception) {
+                    $errorData['trace'][] = $cause;
                     $cause = $cause->getPrevious();
 
                     continue;
                 }
+
+                $errorData['trace'][] = $cause;
 
                 break;
             }

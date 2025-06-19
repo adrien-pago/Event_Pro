@@ -19,7 +19,10 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 trait ValidatorExtensionTrait
 {
-    protected ValidatorInterface $validator;
+    /**
+     * @var ValidatorInterface|null
+     */
+    protected $validator;
 
     protected function getValidatorExtension(): ValidatorExtension
     {
@@ -28,7 +31,7 @@ trait ValidatorExtensionTrait
         }
 
         if (!$this instanceof TypeTestCase) {
-            throw new \Exception(\sprintf('The trait "ValidatorExtensionTrait" can only be added to a class that extends "%s".', TypeTestCase::class));
+            throw new \Exception(sprintf('The trait "ValidatorExtensionTrait" can only be added to a class that extends "%s".', TypeTestCase::class));
         }
 
         $this->validator = $this->createMock(ValidatorInterface::class);

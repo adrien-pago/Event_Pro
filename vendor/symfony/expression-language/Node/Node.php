@@ -20,8 +20,8 @@ use Symfony\Component\ExpressionLanguage\Compiler;
  */
 class Node
 {
-    public array $nodes = [];
-    public array $attributes = [];
+    public $nodes = [];
+    public $attributes = [];
 
     /**
      * @param array $nodes      An array of nodes
@@ -37,7 +37,7 @@ class Node
     {
         $attributes = [];
         foreach ($this->attributes as $name => $value) {
-            $attributes[] = \sprintf('%s: %s', $name, str_replace("\n", '', var_export($value, true)));
+            $attributes[] = sprintf('%s: %s', $name, str_replace("\n", '', var_export($value, true)));
         }
 
         $repr = [str_replace('Symfony\Component\ExpressionLanguage\Node\\', '', static::class).'('.implode(', ', $attributes)];
@@ -57,14 +57,20 @@ class Node
         return implode("\n", $repr);
     }
 
-    public function compile(Compiler $compiler): void
+    /**
+     * @return void
+     */
+    public function compile(Compiler $compiler)
     {
         foreach ($this->nodes as $node) {
             $node->compile($compiler);
         }
     }
 
-    public function evaluate(array $functions, array $values): mixed
+    /**
+     * @return mixed
+     */
+    public function evaluate(array $functions, array $values)
     {
         $results = [];
         foreach ($this->nodes as $node) {
@@ -75,14 +81,19 @@ class Node
     }
 
     /**
+     * @return array
+     *
      * @throws \BadMethodCallException when this node cannot be transformed to an array
      */
-    public function toArray(): array
+    public function toArray()
     {
-        throw new \BadMethodCallException(\sprintf('Dumping a "%s" instance is not supported yet.', static::class));
+        throw new \BadMethodCallException(sprintf('Dumping a "%s" instance is not supported yet.', static::class));
     }
 
-    public function dump(): string
+    /**
+     * @return string
+     */
+    public function dump()
     {
         $dump = '';
 
@@ -93,12 +104,18 @@ class Node
         return $dump;
     }
 
-    protected function dumpString(string $value): string
+    /**
+     * @return string
+     */
+    protected function dumpString(string $value)
     {
-        return \sprintf('"%s"', addcslashes($value, "\0\t\"\\"));
+        return sprintf('"%s"', addcslashes($value, "\0\t\"\\"));
     }
 
-    protected function isHash(array $value): bool
+    /**
+     * @return bool
+     */
+    protected function isHash(array $value)
     {
         $expectedKey = 0;
 

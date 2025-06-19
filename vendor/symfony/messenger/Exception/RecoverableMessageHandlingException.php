@@ -18,13 +18,4 @@ namespace Symfony\Component\Messenger\Exception;
  */
 class RecoverableMessageHandlingException extends RuntimeException implements RecoverableExceptionInterface
 {
-    public function __construct(string $message = '', int $code = 0, ?\Throwable $previous = null, private readonly ?int $retryDelay = null)
-    {
-        parent::__construct($message, $code, $previous);
-    }
-
-    public function getRetryDelay(): ?int
-    {
-        return $this->retryDelay;
-    }
 }

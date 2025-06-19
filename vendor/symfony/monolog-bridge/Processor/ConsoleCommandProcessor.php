@@ -12,7 +12,6 @@
 namespace Symfony\Bridge\Monolog\Processor;
 
 use Monolog\LogRecord;
-use Monolog\ResettableInterface;
 use Symfony\Component\Console\ConsoleEvents;
 use Symfony\Component\Console\Event\ConsoleEvent;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
@@ -22,32 +21,44 @@ use Symfony\Contracts\Service\ResetInterface;
  * Adds the current console command information to the log entry.
  *
  * @author Piotr Stankowski <git@trakos.pl>
+ *
+ * @final since Symfony 6.1
  */
-final class ConsoleCommandProcessor implements EventSubscriberInterface, ResetInterface, ResettableInterface
+class ConsoleCommandProcessor implements EventSubscriberInterface, ResetInterface
 {
-    private array $commandData;
+    use CompatibilityProcessor;
 
-    public function __construct(
-        private bool $includeArguments = true,
-        private bool $includeOptions = false,
-    ) {
+    private array $commandData;
+    private bool $includeArguments;
+    private bool $includeOptions;
+
+    public function __construct(bool $includeArguments = true, bool $includeOptions = false)
+    {
+        $this->includeArguments = $includeArguments;
+        $this->includeOptions = $includeOptions;
     }
 
-    public function __invoke(LogRecord $record): LogRecord
+    private function doInvoke(array|LogRecord $record): array|LogRecord
     {
-        if (isset($this->commandData) && !isset($record->extra['command'])) {
-            $record->extra['command'] = $this->commandData;
+        if (isset($this->commandData) && !isset($record['extra']['command'])) {
+            $record['extra']['command'] = $this->commandData;
         }
 
         return $record;
     }
 
-    public function reset(): void
+    /**
+     * @return void
+     */
+    public function reset()
     {
         unset($this->commandData);
     }
 
-    public function addCommandData(ConsoleEvent $event): void
+    /**
+     * @return void
+     */
+    public function addCommandData(ConsoleEvent $event)
     {
         $this->commandData = [
             'name' => $event->getCommand()->getName(),

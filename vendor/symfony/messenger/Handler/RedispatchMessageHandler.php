@@ -13,7 +13,6 @@ namespace Symfony\Component\Messenger\Handler;
 
 use Symfony\Component\Messenger\Message\RedispatchMessage;
 use Symfony\Component\Messenger\MessageBusInterface;
-use Symfony\Component\Messenger\Stamp\HandledStamp;
 use Symfony\Component\Messenger\Stamp\TransportNamesStamp;
 
 final class RedispatchMessageHandler
@@ -23,10 +22,8 @@ final class RedispatchMessageHandler
     ) {
     }
 
-    public function __invoke(RedispatchMessage $message): mixed
+    public function __invoke(RedispatchMessage $message): void
     {
-        $envelope = $this->bus->dispatch($message->envelope, [new TransportNamesStamp($message->transportNames)]);
-
-        return $envelope->last(HandledStamp::class)?->getResult();
+        $this->bus->dispatch($message->envelope, [new TransportNamesStamp($message->transportNames)]);
     }
 }

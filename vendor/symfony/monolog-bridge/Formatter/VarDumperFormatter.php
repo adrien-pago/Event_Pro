@@ -17,9 +17,13 @@ use Symfony\Component\VarDumper\Cloner\VarCloner;
 
 /**
  * @author Grégoire Pineau <lyrixx@lyrixx.info>
+ *
+ * @final since Symfony 6.1
  */
-final class VarDumperFormatter implements FormatterInterface
+class VarDumperFormatter implements FormatterInterface
 {
+    use CompatibilityFormatter;
+
     private VarCloner $cloner;
 
     public function __construct(?VarCloner $cloner = null)
@@ -27,9 +31,11 @@ final class VarDumperFormatter implements FormatterInterface
         $this->cloner = $cloner ?? new VarCloner();
     }
 
-    public function format(LogRecord $record): mixed
+    private function doFormat(array|LogRecord $record): mixed
     {
-        $record = $record->toArray();
+        if ($record instanceof LogRecord) {
+            $record = $record->toArray();
+        }
 
         $record['context'] = $this->cloner->cloneVar($record['context']);
         $record['extra'] = $this->cloner->cloneVar($record['extra']);

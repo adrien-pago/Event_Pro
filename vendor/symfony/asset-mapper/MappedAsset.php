@@ -34,11 +34,28 @@ final class MappedAsset
 
     public readonly string $digest;
     public readonly bool $isPredigested;
+    public readonly bool $isVendor;
 
     /**
-     * @param MappedAsset[]      $dependencies      assets that the content of this asset depends on
-     * @param string[]           $fileDependencies  files that the content of this asset depends on
-     * @param JavaScriptImport[] $javaScriptImports
+     * Assets whose content affects the content of this asset.
+     *
+     * @var MappedAsset[]
+     */
+    private array $dependencies = [];
+
+    /**
+     * @var string[]
+     */
+    private array $fileDependencies = [];
+
+    /**
+     * @var JavaScriptImport[]
+     */
+    private array $javaScriptImports = [];
+
+    /**
+     * @param MappedAsset[] $dependencies     assets that the content of this asset depends on
+     * @param string[]      $fileDependencies files that the content of this asset depends on
      */
     public function __construct(
         public readonly string $logicalPath,
@@ -48,10 +65,10 @@ final class MappedAsset
         ?string $content = null,
         ?string $digest = null,
         ?bool $isPredigested = null,
-        public readonly bool $isVendor = false,
-        private array $dependencies = [],
-        private array $fileDependencies = [],
-        private array $javaScriptImports = [],
+        bool $isVendor = false,
+        array $dependencies = [],
+        array $fileDependencies = [],
+        array $javaScriptImports = [],
     ) {
         if (null !== $sourcePath) {
             $this->sourcePath = $sourcePath;
@@ -70,6 +87,10 @@ final class MappedAsset
         if (null !== $isPredigested) {
             $this->isPredigested = $isPredigested;
         }
+        $this->isVendor = $isVendor;
+        $this->dependencies = $dependencies;
+        $this->fileDependencies = $fileDependencies;
+        $this->javaScriptImports = $javaScriptImports;
     }
 
     /**

@@ -21,9 +21,11 @@ use Symfony\Component\Messenger\Event\WorkerStoppedEvent;
  */
 class ResetServicesListener implements EventSubscriberInterface
 {
-    public function __construct(
-        private ServicesResetter $servicesResetter,
-    ) {
+    private ServicesResetter $servicesResetter;
+
+    public function __construct(ServicesResetter $servicesResetter)
+    {
+        $this->servicesResetter = $servicesResetter;
     }
 
     public function resetServices(WorkerRunningEvent $event): void

@@ -21,13 +21,17 @@ use Symfony\Contracts\Service\ResetInterface;
 class Compiler implements ResetInterface
 {
     private string $source = '';
+    private array $functions;
 
-    public function __construct(
-        private array $functions,
-    ) {
+    public function __construct(array $functions)
+    {
+        $this->functions = $functions;
     }
 
-    public function getFunction(string $name): array
+    /**
+     * @return array
+     */
+    public function getFunction(string $name)
     {
         return $this->functions[$name];
     }
@@ -62,7 +66,10 @@ class Compiler implements ResetInterface
         return $this;
     }
 
-    public function subcompile(Node\Node $node): string
+    /**
+     * @return string
+     */
+    public function subcompile(Node\Node $node)
     {
         $current = $this->source;
         $this->source = '';
@@ -94,7 +101,7 @@ class Compiler implements ResetInterface
      */
     public function string(string $value): static
     {
-        $this->source .= \sprintf('"%s"', addcslashes($value, "\0\t\"\$\\"));
+        $this->source .= sprintf('"%s"', addcslashes($value, "\0\t\"\$\\"));
 
         return $this;
     }

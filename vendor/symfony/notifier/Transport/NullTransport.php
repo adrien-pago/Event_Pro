@@ -23,9 +23,11 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
  */
 class NullTransport implements TransportInterface
 {
-    public function __construct(
-        private ?EventDispatcherInterface $dispatcher = null,
-    ) {
+    private ?EventDispatcherInterface $dispatcher;
+
+    public function __construct(?EventDispatcherInterface $dispatcher = null)
+    {
+        $this->dispatcher = $dispatcher;
     }
 
     public function send(MessageInterface $message): SentMessage

@@ -24,15 +24,16 @@ final class Envelope
      * @var array<class-string<StampInterface>, list<StampInterface>>
      */
     private array $stamps = [];
+    private object $message;
 
     /**
      * @param object|Envelope  $message
      * @param StampInterface[] $stamps
      */
-    public function __construct(
-        private object $message,
-        array $stamps = [],
-    ) {
+    public function __construct(object $message, array $stamps = [])
+    {
+        $this->message = $message;
+
         foreach ($stamps as $stamp) {
             $this->stamps[$stamp::class][] = $stamp;
         }

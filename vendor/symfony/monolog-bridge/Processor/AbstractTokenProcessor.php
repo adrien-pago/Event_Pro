@@ -21,30 +21,38 @@ use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
  * @author Dany Maillard <danymaillard93b@gmail.com>
  * @author Igor Timoshenko <igor.timoshenko@i.ua>
  *
- * @internal
+ * @internal since Symfony 6.1
  */
 abstract class AbstractTokenProcessor
 {
-    public function __construct(
-        protected TokenStorageInterface $tokenStorage,
-    ) {
+    use CompatibilityProcessor;
+
+    /**
+     * @var TokenStorageInterface
+     */
+    protected $tokenStorage;
+
+    public function __construct(TokenStorageInterface $tokenStorage)
+    {
+        $this->tokenStorage = $tokenStorage;
     }
 
     abstract protected function getKey(): string;
 
     abstract protected function getToken(): ?TokenInterface;
 
-    public function __invoke(LogRecord $record): LogRecord
+    private function doInvoke(array|LogRecord $record): array|LogRecord
     {
-        $record->extra[$this->getKey()] = null;
+        $record['extra'][$this->getKey()] = null;
 
         if (null !== $token = $this->getToken()) {
-            $record->extra[$this->getKey()] = [
+            $record['extra'][$this->getKey()] = [
                 'authenticated' => (bool) $token->getUser(),
                 'roles' => $token->getRoleNames(),
             ];
 
-            $record->extra[$this->getKey()]['user_identifier'] = $token->getUserIdentifier();
+            // @deprecated since Symfony 5.3, change to $token->getUserIdentifier() in 7.0
+            $record['extra'][$this->getKey()]['user_identifier'] = method_exists($token, 'getUserIdentifier') ? $token->getUserIdentifier() : $token->getUsername();
         }
 
         return $record;

@@ -22,26 +22,33 @@ use Symfony\Component\Asset\Exception\LogicException;
  */
 class Packages
 {
+    private ?PackageInterface $defaultPackage;
     private array $packages = [];
 
     /**
      * @param PackageInterface[] $packages Additional packages indexed by name
      */
-    public function __construct(
-        private ?PackageInterface $defaultPackage = null,
-        iterable $packages = [],
-    ) {
+    public function __construct(?PackageInterface $defaultPackage = null, iterable $packages = [])
+    {
+        $this->defaultPackage = $defaultPackage;
+
         foreach ($packages as $name => $package) {
             $this->addPackage($name, $package);
         }
     }
 
-    public function setDefaultPackage(PackageInterface $defaultPackage): void
+    /**
+     * @return void
+     */
+    public function setDefaultPackage(PackageInterface $defaultPackage)
     {
         $this->defaultPackage = $defaultPackage;
     }
 
-    public function addPackage(string $name, PackageInterface $package): void
+    /**
+     * @return void
+     */
+    public function addPackage(string $name, PackageInterface $package)
     {
         $this->packages[$name] = $package;
     }
@@ -65,7 +72,7 @@ class Packages
         }
 
         if (!isset($this->packages[$name])) {
-            throw new InvalidArgumentException(\sprintf('There is no "%s" asset package.', $name));
+            throw new InvalidArgumentException(sprintf('There is no "%s" asset package.', $name));
         }
 
         return $this->packages[$name];

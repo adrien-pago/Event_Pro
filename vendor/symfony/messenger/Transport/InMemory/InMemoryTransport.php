@@ -102,13 +102,16 @@ class InMemoryTransport implements TransportInterface, ResetInterface
         /** @var DelayStamp|null $delayStamp */
         if ($delayStamp = $envelope->last(DelayStamp::class)) {
             $now = $this->clock?->now() ?? new \DateTimeImmutable();
-            $this->availableAt[$id] = $now->modify(\sprintf('+%d seconds', $delayStamp->getDelay() / 1000));
+            $this->availableAt[$id] = $now->modify(sprintf('+%d seconds', $delayStamp->getDelay() / 1000));
         }
 
         return $envelope;
     }
 
-    public function reset(): void
+    /**
+     * @return void
+     */
+    public function reset()
     {
         $this->sent = $this->queue = $this->rejected = $this->acknowledged = [];
     }
