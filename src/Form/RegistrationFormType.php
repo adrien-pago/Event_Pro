@@ -1,90 +1,135 @@
 <?php
-// src/Form/RegistrationFormType.php
 
 namespace App\Form;
 
 use App\Entity\User;
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\EmailType;
 use Symfony\Component\Form\Extension\Core\Type\PasswordType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
-use Symfony\Component\Form\FormError;
-use Symfony\Component\Form\FormEvent;
-use Symfony\Component\Form\FormEvents;
 use Symfony\Component\OptionsResolver\OptionsResolver;
-use Symfony\Component\Validator\Constraints\Email;
+use Symfony\Component\Validator\Constraints\IsTrue;
 use Symfony\Component\Validator\Constraints\Length;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Regex;
+use Symfony\Component\Validator\Constraints\Email;
+use Symfony\Component\Validator\Constraints\EqualTo;
+use Symfony\Component\Form\FormEvent;
+use Symfony\Component\Form\FormEvents;
+use Symfony\Component\Form\FormError;
 
 class RegistrationFormType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
-            ->add('fullName', TextType::class, [
-                'label'       => 'Nom complet',
-                'constraints' => [
-                    new NotBlank(['message' => 'Le nom complet est requis']),
-                    new Length([
-                        'min'        => 2,
-                        'max'        => 255,
-                        'minMessage' => 'Le nom complet doit contenir au moins {{ limit }} caractères',
-                        'maxMessage' => 'Le nom complet ne peut pas dépasser {{ limit }} caractères',
-                    ]),
+            ->add('firstName', TextType::class, [
+                'label' => 'Prénom',
+                'attr' => [
+                    'class' => 'form-control',
+                    'placeholder' => 'Votre prénom'
                 ],
+                'constraints' => [
+                    new NotBlank([
+                        'message' => 'Veuillez entrer votre prénom'
+                    ])
+                ]
             ])
-            ->add('username', TextType::class, [
-                'label'       => 'Nom d\'utilisateur',
-                'constraints' => [
-                    new NotBlank(['message' => 'Le nom d\'utilisateur est requis']),
-                    new Length([
-                        'min'        => 3,
-                        'max'        => 50,
-                        'minMessage' => 'Le nom d\'utilisateur doit contenir au moins {{ limit }} caractères',
-                        'maxMessage' => 'Le nom d\'utilisateur ne peut pas dépasser {{ limit }} caractères',
-                    ]),
-                    new Regex([
-                        'pattern' => '/^[a-zA-Z0-9_]+$/',
-                        'message' => 'Le nom d\'utilisateur ne peut contenir que des lettres, chiffres et underscores',
-                    ]),
+            ->add('lastName', TextType::class, [
+                'label' => 'Nom',
+                'attr' => [
+                    'class' => 'form-control',
+                    'placeholder' => 'Votre nom'
                 ],
+                'constraints' => [
+                    new NotBlank([
+                        'message' => 'Veuillez entrer votre nom'
+                    ])
+                ]
             ])
             ->add('email', EmailType::class, [
-                'label'       => 'Email',
-                'constraints' => [
-                    new NotBlank(['message' => 'L\'email est requis']),
-                    new Email(['message' => 'Veuillez entrer une adresse email valide']),
+                'label' => 'Email',
+                'attr' => [
+                    'class' => 'form-control',
+                    'placeholder' => 'Votre email'
                 ],
+                'constraints' => [
+                    new NotBlank([
+                        'message' => 'Veuillez entrer votre email'
+                    ]),
+                    new Email([
+                        'message' => 'Veuillez entrer un email valide'
+                    ])
+                ]
             ])
-            ->add('plainPassword', PasswordType::class, [
-                'label'  => 'Mot de passe',
-                'mapped' => true,
+            ->add('password', PasswordType::class, [
+                'label' => 'Mot de passe',
+                'mapped' => false,
+                'attr' => [
+                    'class' => 'form-control',
+                    'placeholder' => 'Votre mot de passe'
+                ],
+                'constraints' => [
+                    new NotBlank([
+                        'message' => 'Veuillez entrer un mot de passe'
+                    ]),
+                    new Length([
+                        'min' => 8,
+                        'minMessage' => 'Votre mot de passe doit faire au moins {{ limit }} caractères',
+                        'max' => 4096,
+                    ]),
+                    new Regex([
+                        'pattern' => '/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/',
+                        'message' => 'Le mot de passe doit contenir au moins une majuscule, une minuscule, un chiffre et un caractère spécial'
+                    ])
+                ]
             ])
             ->add('confirmPassword', PasswordType::class, [
-                'label'  => 'Confirmer le mot de passe',
-                'mapped' => true,
-            ]);
+                'mapped' => false,
+                'attr' => [
+                    'class' => 'form-control',
+                    'placeholder' => 'Confirmez votre mot de passe'
+                ],
+                'label' => 'Confirmer le mot de passe',
+                'label_attr' => ['class' => 'form-label']
+            ])
+            /* Temporairement commenté pour le développement local
+            ->add('recaptcha', TextType::class, [
+                'label' => 'CAPTCHA',
+                'mapped' => false,
+                'attr' => [
+                    'class' => 'form-control',
+                    'data-sitekey' => '%recaptcha.site_key%'
+                ],
+                'constraints' => [
+                    new NotBlank([
+                        'message' => 'Veuillez valider le CAPTCHA',
+                    ]),
+                ],
+            ])
+            */
+            ->add('agreeTerms', CheckboxType::class, [
+                'label' => 'J\'accepte le traitement de mes données personnelles conformément à la <a href="/rgpd" target="_blank">politique de confidentialité</a>',
+                'label_html' => true,
+                'mapped' => false,
+                'constraints' => [
+                    new IsTrue([
+                        'message' => 'Vous devez accepter nos conditions.'
+                    ])
+                ]
+            ])
+        ;
 
-        $builder->addEventListener(FormEvents::SUBMIT, function (FormEvent $event) {
+        // Ajouter un EventListener pour la validation des mots de passe
+        $builder->addEventListener(FormEvents::POST_SUBMIT, function (FormEvent $event) {
             $form = $event->getForm();
-            /** @var User|null $user */
-            $user = $event->getData();
-            if (!$user) {
-                return;
-            }
+            $password = $form->get('password')->getData();
+            $confirmPassword = $form->get('confirmPassword')->getData();
 
-            if (empty($user->getPlainPassword())) {
-                $form->addError(new FormError('Le mot de passe est requis'));
-                return;
-            }
-            if (strlen($user->getPlainPassword()) < 6) {
-                $form->addError(new FormError('Le mot de passe doit contenir au moins 6 caractères'));
-                return;
-            }
-            if ($user->getPlainPassword() !== $user->getConfirmPassword()) {
-                $form->addError(new FormError('Les mots de passe ne correspondent pas'));
+            if ($password !== $confirmPassword) {
+                $form->get('confirmPassword')->addError(new FormError('Les mots de passe ne correspondent pas'));
             }
         });
     }
@@ -93,6 +138,9 @@ class RegistrationFormType extends AbstractType
     {
         $resolver->setDefaults([
             'data_class' => User::class,
+            'csrf_protection' => true,
+            'csrf_field_name' => '_token',
+            'csrf_token_id' => 'registration_form',
         ]);
     }
-}
+} 
