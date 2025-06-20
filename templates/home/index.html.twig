@@ -1,11 +1,38 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Gestion d'évenements-SYMFONY{% endblock %}
+{% block title %}Accueil - Gestion d'événements{% endblock %}
 
 {% block header %}
     {{ include('partials/_header.html.twig') }}
 {% endblock %}
 
 {% block body %}
-
+<div class="home-container">
+    <div class="home-welcome-card">
+        <h1 class="home-welcome-title">Bienvenue sur votre plateforme de gestion d'événements</h1>
+        
+        <div class="home-alert home-alert-success">
+            <h4 class="home-user-info">Bonjour {{ app.user.firstName }} {{ app.user.lastName }} !</h4>
+            <p class="home-user-email">Connecté avec l'email : {{ app.user.email }}</p>
+        </div>
+        
+        <div class="home-actions-grid">
+            <div class="home-action-card border-primary">
+                <h5 class="home-action-title">Mon Compte</h5>
+                <p class="home-action-description">Gérez vos informations personnelles et vos paramètres de compte.</p>
+                <a href="{{ path('app_account') }}" class="home-action-button btn-primary">
+                    <i class="bi bi-person-circle"></i> Accéder à mon compte
+                </a>
+            </div>
+            
+            <div class="home-action-card border-info">
+                <h5 class="home-action-title">Gestion d'événements</h5>
+                <p class="home-action-description">Créez et gérez vos événements en toute simplicité.</p>
+                <a href="#" class="home-action-button btn-info">
+                    <i class="bi bi-calendar-plus"></i> Créer un événement
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %} 

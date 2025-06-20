@@ -1,5 +1,4 @@
-import { startStimulusApp } from '@symfony/stimulus-bundle';
+// Bootstrap.js simplifié pour éviter les erreurs de compilation
+// Vous pouvez ajouter ici vos imports JavaScript personnalisés
 
-const app = startStimulusApp();
-// register any custom, 3rd party controllers here
-// app.register('some_controller_name', SomeImportedController);
+console.log('Bootstrap.js chargé avec succès');

@@ -9,13 +9,17 @@
             <h1 class="auth-title">Connexion</h1>
         </div>
         <div class="auth-body">
-            <form method="post" class="auth-form">
-                {% if error %}
-                    <div class="auth-alert">
+            {% if error %}
+                <div class="auth-alert">
+                    {% if error.messageKey == 'Invalid credentials.' %}
+                        Email ou mot de passe incorrect.
+                    {% else %}
                         {{ error.messageKey|trans(error.messageData, 'security') }}
-                    </div>
-                {% endif %}
+                    {% endif %}
+                </div>
+            {% endif %}
 
+            <form method="post" class="auth-form">
                 <div class="form-group">
                     <label for="inputUsername" class="form-label">Email</label>
                     <input type="email" value="{{ last_username }}" name="_username" id="inputUsername" class="form-control" required autofocus>

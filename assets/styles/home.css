@@ -1,0 +1,221 @@
+/* ===================================
+   STYLES POUR LA PAGE D'ACCUEIL
+   =================================== */
+
+/* Styles pour la page d'accueil */
+.home-container {
+    padding: 40px 20px;
+    min-height: calc(100vh - 80px); /* Hauteur totale moins le header */
+}
+
+.home-welcome-card {
+    background: white;
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    padding: 40px;
+    margin-bottom: 30px;
+    text-align: center;
+}
+
+.home-welcome-title {
+    color: #333;
+    font-size: 2.5rem;
+    font-weight: 300;
+    margin-bottom: 20px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.home-welcome-subtitle {
+    color: #666;
+    font-size: 1.1rem;
+    margin-bottom: 30px;
+    line-height: 1.6;
+}
+
+/* Styles pour les alertes de bienvenue */
+.home-alert {
+    padding: 20px;
+    border-radius: 10px;
+    margin-bottom: 30px;
+    border: none;
+}
+
+.home-alert-success {
+    background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
+    color: #155724;
+    border-left: 4px solid #28a745;
+}
+
+.home-alert-info {
+    background: linear-gradient(135deg, #d1ecf1 0%, #bee5eb 100%);
+    color: #0c5460;
+    border-left: 4px solid #17a2b8;
+}
+
+.home-user-info {
+    font-size: 1.2rem;
+    font-weight: 500;
+    margin-bottom: 10px;
+}
+
+.home-user-email {
+    font-size: 0.9rem;
+    opacity: 0.8;
+}
+
+/* Styles pour les cartes d'action */
+.home-actions-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 20px;
+    margin-top: 30px;
+}
+
+.home-action-card {
+    background: white;
+    border-radius: 12px;
+    padding: 30px;
+    text-align: center;
+    transition: all 0.3s ease;
+    border: 2px solid transparent;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+}
+
+.home-action-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
+}
+
+.home-action-card.border-primary {
+    border-color: #667eea;
+}
+
+.home-action-card.border-info {
+    border-color: #17a2b8;
+}
+
+.home-action-title {
+    font-size: 1.3rem;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 15px;
+}
+
+.home-action-description {
+    color: #666;
+    line-height: 1.5;
+    margin-bottom: 20px;
+}
+
+.home-action-button {
+    display: inline-block;
+    padding: 12px 24px;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    border: none;
+    cursor: pointer;
+}
+
+.home-action-button.btn-primary {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+}
+
+.home-action-button.btn-info {
+    background: linear-gradient(135deg, #17a2b8 0%, #138496 100%);
+    color: white;
+}
+
+.home-action-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+    text-decoration: none;
+    color: white;
+}
+
+/* Styles pour les boutons de connexion/inscription */
+.home-auth-buttons {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 15px;
+    margin-top: 30px;
+}
+
+.home-auth-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 15px 30px;
+    border-radius: 10px;
+    text-decoration: none;
+    font-weight: 500;
+    font-size: 1.1rem;
+    transition: all 0.3s ease;
+    border: 2px solid transparent;
+}
+
+.home-auth-button.btn-primary {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+}
+
+.home-auth-button.btn-outline-primary {
+    background: transparent;
+    color: #667eea;
+    border-color: #667eea;
+}
+
+.home-auth-button:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    text-decoration: none;
+}
+
+.home-auth-button.btn-primary:hover {
+    color: white;
+}
+
+.home-auth-button.btn-outline-primary:hover {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-color: transparent;
+}
+
+/* Responsive design pour la page d'accueil */
+@media (max-width: 768px) {
+    .home-container {
+        padding: 20px 15px;
+    }
+    
+    .home-welcome-card {
+        padding: 30px 20px;
+    }
+    
+    .home-welcome-title {
+        font-size: 2rem;
+    }
+    
+    .home-actions-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .home-auth-buttons {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 480px) {
+    .home-welcome-title {
+        font-size: 1.8rem;
+    }
+    
+    .home-action-card {
+        padding: 20px;
+    }
+} 

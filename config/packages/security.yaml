@@ -25,7 +25,7 @@ security:
             form_login:
                 login_path: app_login
                 check_path: app_login
-                default_target_path: app_dashboard
+                default_target_path: app_home
                 
             # Configuration de la déconnexion
             logout:
@@ -42,10 +42,9 @@ security:
     access_control:
         - { path: ^/login$, roles: PUBLIC_ACCESS }
         - { path: ^/register$, roles: PUBLIC_ACCESS }
-        - { path: ^/dashboard, roles: ROLE_USER }
-        - { path: ^/clients, roles: ROLE_USER }
-        - { path: ^/prestations, roles: ROLE_USER }
-        - { path: ^/devis, roles: ROLE_USER }
+        - { path: ^/$, roles: ROLE_USER }
+        - { path: ^/home, roles: ROLE_USER }
+        - { path: ^/account, roles: ROLE_USER }
 
 when@test:
     security:
