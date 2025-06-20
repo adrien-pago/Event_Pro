@@ -25,6 +25,7 @@ security:
             form_login:
                 login_path: app_login
                 check_path: app_login
+                enable_csrf: true
                 default_target_path: app_home
                 
             # Configuration de la déconnexion
@@ -38,6 +39,9 @@ security:
                 lifetime: 604800 # 7 jours
                 path: /
                 
+            custom_authenticators:
+                - App\Security\GoogleAuthenticator
+
     # Configuration des routes protégées
     access_control:
         - { path: ^/login$, roles: PUBLIC_ACCESS }
@@ -45,6 +49,7 @@ security:
         - { path: ^/$, roles: ROLE_USER }
         - { path: ^/home, roles: ROLE_USER }
         - { path: ^/account, roles: ROLE_USER }
+        - { path: ^/events, roles: ROLE_USER }
 
 when@test:
     security:

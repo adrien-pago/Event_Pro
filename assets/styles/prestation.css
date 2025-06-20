@@ -1,0 +1,70 @@
+/* assets/styles/prestation.css */
+
+/* Style pour la carte principale de la page des prestations */
+.prestation-card {
+    background: #ffffff;
+    border-radius: 16px !important;
+    border: none;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.07);
+    overflow: hidden;
+}
+
+/* --- Style pour les formulaires dans les modales --- */
+.modal-content {
+    border-radius: 12px;
+    border: none;
+}
+
+.modal-header {
+    background-color: #f7f9fc;
+    border-bottom: 1px solid #e9ecef;
+}
+
+.modal-body .form-control {
+    border-radius: 8px;
+    padding: 0.75rem 1rem;
+    background-color: #f8f9fa;
+    border: 1px solid #dee2e6;
+}
+
+.modal-body .form-control:focus {
+    background-color: #ffffff;
+    border-color: #8ab4f8;
+    box-shadow: 0 0 0 3px rgba(138, 180, 248, 0.25);
+}
+
+.modal-body label {
+    font-weight: 600;
+    color: #495057;
+    margin-bottom: 0.5rem;
+}
+
+.modal-footer {
+    background-color: #f7f9fc;
+    border-top: 1px solid #e9ecef;
+}
+
+/* --- Styles pour le tableau des prestations --- */
+.prestation-card .table-responsive {
+    border: 1px solid #e9ecef;
+    border-radius: 12px;
+    overflow: auto; /* Permet le défilement horizontal et vertical si nécessaire */
+}
+
+.prestation-card .table {
+    min-width: 600px; /* Force le défilement sur les petits écrans */
+    margin-bottom: 0;
+}
+
+.prestation-card .table th,
+.prestation-card .table td {
+    white-space: nowrap; /* Empêche le texte de revenir à la ligne */
+}
+
+.prestation-card .table tfoot th,
+.prestation-card .table tfoot td {
+    font-weight: 600;
+}
+
+/* Le reste des styles sera hérité de event.css pour la cohérence */
+/* Si des styles spécifiques sont nécessaires, ils seront ajoutés ici */ 

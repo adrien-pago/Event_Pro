@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Devis pour {{ event.eventName }}</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            color: #333;
+            font-size: 12px;
+        }
+        .container {
+            width: 100%;
+            margin: 0 auto;
+        }
+        .header {
+            text-align: right;
+            margin-bottom: 40px;
+        }
+        .header h1 {
+            background-color: #f2f2f2;
+            color: #333;
+            padding: 15px;
+            font-size: 28px;
+            text-align: center;
+            margin: 0;
+        }
+        .invoice-details {
+            margin-bottom: 40px;
+        }
+        .invoice-details table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .invoice-details td {
+            padding: 5px;
+        }
+        .details-left {
+            width: 50%;
+            text-align: left;
+        }
+        .details-right {
+            width: 50%;
+            text-align: right;
+        }
+        .items-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 30px;
+        }
+        .items-table th, .items-table td {
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: left;
+        }
+        .items-table th {
+            background-color: #f2f2f2;
+            font-weight: bold;
+        }
+        .items-table .text-right {
+            text-align: right;
+        }
+        .total-section {
+            text-align: right;
+        }
+        .total-section table {
+            width: 40%;
+            margin-left: 60%;
+            border-collapse: collapse;
+        }
+        .total-section th, .total-section td {
+            padding: 10px;
+            border: 1px solid #ddd;
+        }
+        .total-section th {
+            background-color: #f2f2f2;
+        }
+        .footer {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            text-align: center;
+            font-size: 10px;
+            color: #777;
+            border-top: 1px solid #ddd;
+            padding-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>DEVIS</h1>
+        </div>
+
+        <div class="invoice-details">
+            <table>
+                <tr>
+                    <td class="details-left">
+                        <strong>À l'attention de :</strong><br>
+                        {{ event.clientName }}
+                    </td>
+                    <td class="details-right">
+                        <strong>Date du devis :</strong> {{ currentDate|date('d/m/Y') }}<br>
+                        <strong>Événement :</strong> {{ event.eventName }}<br>
+                        <strong>Date de l'événement :</strong> {{ event.eventDate|date('d/m/Y') }}
+                    </td>
+                </tr>
+            </table>
+        </div>
+
+        <table class="items-table">
+            <thead>
+                <tr>
+                    <th>Prestation</th>
+                    <th class="text-right">Durée</th>
+                    <th class="text-right">Prix</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for prestation in prestations %}
+                <tr>
+                    <td>{{ prestation.nom }}</td>
+                    <td class="text-right">{{ prestation.duree }}</td>
+                    <td class="text-right">{{ prestation.prix|number_format(2, ',', ' ') }} €</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <div class="total-section">
+            <table>
+                <tr>
+                    <th>Total HT</th>
+                    <td class="text-right">{{ totalPrix|number_format(2, ',', ' ') }} €</td>
+                </tr>
+                <tr>
+                    <th>TVA (20%)</th>
+                    <td class="text-right">{{ (totalPrix * 0.20)|number_format(2, ',', ' ') }} €</td>
+                </tr>
+                <tr>
+                    <th>Total TTC</th>
+                    <td class="text-right"><strong>{{ (totalPrix * 1.20)|number_format(2, ',', ' ') }} €</strong></td>
+                </tr>
+            </table>
+        </div>
+
+        <div class="footer">
+            <p>Mon Entreprise - 123 Rue de l'Exemple, 75001 Paris - SIRET: 123 456 789 00012</p>
+            <p>Devis valable 30 jours à compter de la date d'émission.</p>
+        </div>
+    </div>
+</body>
+</html> 

@@ -15,9 +15,11 @@
         {% block stylesheets %}{% endblock %}
     </head>
     <body>
-        {% block header %}{% endblock %}
+        {% block header %}
+            {% include 'partials/_header.html.twig' %}
+        {% endblock %}
         
-        <main class="container-fluid p-0">
+        <main>
             {% block body %}{% endblock %}
         </main>
 

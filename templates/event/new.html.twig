@@ -1,0 +1,83 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Créer un nouvel événement{% endblock %}
+
+{% block body %}
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow-lg border-0 rounded-lg">
+                <div class="card-header">
+                    <h1 class="h3 mb-0 text-center font-weight-light">Créer un nouvel événement</h1>
+                </div>
+                <div class="card-body p-5">
+                    
+                    {{ form_start(form) }}
+
+                    {{ form_row(form.clientName) }}
+                    {{ form_row(form.eventName) }}
+                    {{ form_row(form.eventDate) }}
+
+                    {% if form.googleCalendarId is defined %}
+                        {{ form_row(form.googleCalendarId) }}
+                        <div class="form-text mb-3">
+                            Choisissez un calendrier pour synchroniser cet événement. Laissez vide pour ne pas le synchroniser.
+                        </div>
+                    {% else %}
+                        <div class="alert alert-info d-flex align-items-center" role="alert">
+                            <i class="bi bi-info-circle-fill me-2"></i>
+                            <div>
+                                Pour synchroniser vos événements avec Google Calendar, veuillez d'abord connecter votre compte depuis la page <a href="{{ path('app_account') }}" class="alert-link">Mon Compte</a>.
+                            </div>
+                        </div>
+                    {% endif %}
+
+                    <div class="d-grid gap-2 mt-4">
+                        <button type="submit" class="btn btn-primary btn-lg">Créer l'événement</button>
+                    </div>
+
+                    {{ form_end(form) }}
+
+                </div>
+                <div class="card-footer text-center py-3">
+                    <a href="{{ path('app_events') }}">Retour à la liste</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block javascripts %}
+<script>
+// Validation du formulaire
+(function() {
+    'use strict';
+    window.addEventListener('load', function() {
+        var forms = document.getElementsByClassName('needs-validation');
+        var validation = Array.prototype.filter.call(forms, function(form) {
+            form.addEventListener('submit', function(event) {
+                if (form.checkValidity() === false) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                }
+                form.classList.add('was-validated');
+            }, false);
+        });
+    }, false);
+})();
+
+// Définir la date minimale à aujourd'hui
+document.addEventListener('DOMContentLoaded', function() {
+    const today = new Date();
+    const year = today.getFullYear();
+    const month = String(today.getMonth() + 1).padStart(2, '0');
+    const day = String(today.getDate()).padStart(2, '0');
+    const hours = String(today.getHours()).padStart(2, '0');
+    const minutes = String(today.getMinutes()).padStart(2, '0');
+    
+    const minDateTime = `${year}-${month}-${day}T${hours}:${minutes}`;
+    document.getElementById('eventDate').min = minDateTime;
+});
+</script>
+{% endblock %} 

@@ -1,24 +1,98 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Mon Compte - CR-SYMFONY{% endblock %}
-
-{% block header %}
-    {{ include('partials/_header.html.twig') }}
-{% endblock %}
+{% block title %}Mon Compte{% endblock %}
 
 {% block body %}
-<div class="container mt-4">
-    <div class="row">
-        <div class="col-12">
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+
+            <!-- Card: Informations Personnelles -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h1 class="h3 mb-0">Tableau de bord</h1>
+                </div>
+                <div class="card-body p-0">
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item d-flex justify-content-between align-items-center py-3">
+                            <span class="text-muted">Nom</span>
+                            <strong>{{ app.user.lastName }}</strong>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center py-3">
+                            <span class="text-muted">Prénom</span>
+                            <strong>{{ app.user.firstName }}</strong>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center py-3">
+                            <span class="text-muted">Email</span>
+                            <strong>{{ app.user.email }}</strong>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center py-3">
+                            <span class="text-muted">Synchronisation Calendrier</span>
+                            {% if app.user.googleId is not null %}
+                                <span class="badge bg-success-soft"><i class="bi bi-check-circle-fill me-1"></i>Connecté</span>
+                            {% else %}
+                                <span class="badge bg-warning-soft"><i class="bi bi-exclamation-triangle-fill me-1"></i>Non connecté</span>
+                            {% endif %}
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Card: Intégrations -->
             <div class="card">
+                <div class="card-header">
+                    <h2 class="h4 mb-0">Intégrations</h2>
+                </div>
                 <div class="card-body">
-                    <h2 class="card-title text-center mb-4">Mon Compte</h2>
-                    <div class="text-center">
-                        <p class="text-muted">La gestion du compte sera implémentée dans la prochaine étape.</p>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h3 class="h5">Google Agenda</h3>
+                            <p class="mb-0 text-muted">
+                                {% if app.user.googleId is not null %}
+                                    Votre compte est bien synchronisé. Les nouveaux événements seront ajoutés à votre calendrier.
+                                {% else %}
+                                    Connectez votre compte pour synchroniser automatiquement vos événements.
+                                {% endif %}
+                            </p>
+                        </div>
+                        <div class="text-end">
+                            {% if app.user.googleId is not null %}
+                                <a href="{{ path('google_disconnect') }}" class="btn btn-outline-danger" onclick="return confirm('Êtes-vous sûr de vouloir déconnecter votre compte Google ?');">
+                                    <i class="bi bi-google"></i> Déconnecter
+                                </a>
+                            {% else %}
+                                <a href="{{ path('connect_google_start') }}" class="btn btn-primary">
+                                    <i class="bi bi-google"></i> Se connecter
+                                </a>
+                            {% endif %}
+                        </div>
                     </div>
                 </div>
             </div>
+
+            <!-- Card: Zone de Danger -->
+            <div class="card mt-4 border-danger">
+                <div class="card-header bg-danger text-white">
+                    <h2 class="h4 mb-0">Zone de Danger</h2>
+                </div>
+                <div class="card-body">
+                    <p class="mb-3">
+                        La suppression de votre compte est une action irréversible. Toutes vos données, y compris vos événements et prestations, seront définitivement perdues.
+                    </p>
+                    <form method="post" action="{{ path('app_account_delete') }}" onsubmit="return confirm('Attention ! Vous êtes sur le point de supprimer définitivement votre compte et toutes vos données. Êtes-vous absolument certain de vouloir continuer ?');">
+                        <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ app.user.id) }}">
+                        <button class="btn btn-danger">
+                            <i class="bi bi-trash-fill me-2"></i>Supprimer mon compte
+                        </button>
+                    </form>
+                </div>
+            </div>
+
         </div>
     </div>
 </div>
+{% endblock %}
+
+{% block stylesheets %}
+{# Les styles ont été déplacés dans assets/styles/account.css #}
 {% endblock %} 

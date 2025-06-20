@@ -1,0 +1,10 @@
+knpu_oauth2_client:
+    clients:
+        # Le nom "google" doit correspondre à celui utilisé dans le contrôleur
+        google:
+            type: google
+            client_id: '%env(GOOGLE_CLIENT_ID)%'
+            client_secret: '%env(GOOGLE_CLIENT_SECRET)%'
+            # La route que Google appellera après l'autorisation
+            redirect_route: connect_google_check
+            redirect_params: {} 

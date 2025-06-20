@@ -6,6 +6,8 @@
 @import './auth.css';
 @import './home.css';
 @import './account.css';
+@import './event.css';
+@import './prestation.css';
 
 /* Styles globaux */
 body {
@@ -130,13 +132,6 @@ body {
 /* Styles utilitaires globaux */
 .cursor-pointer {
     cursor: pointer;
-}
-
-.text-gradient {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
 }
 
 /* Animations globales */

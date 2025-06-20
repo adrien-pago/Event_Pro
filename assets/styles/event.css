@@ -1,0 +1,238 @@
+/* ===================================
+   STYLES POUR LA PAGE ÉVÉNEMENTS
+   =================================== */
+
+/* Étape 1 : Le conteneur externe (juste une ombre) */
+.event-card {
+    /* Fond solide, ombre douce et coins arrondis pour un look moderne et net */
+    background: #ffffff;
+    border-radius: 16px !important;
+    border: none;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.07);
+    overflow: hidden; /* Essentiel pour que les coins arrondis s'appliquent aux enfants */
+}
+
+/* Étape 2 : Le conteneur interne (le tableau visible qui scrolle) */
+.event-card .table-responsive {
+    overflow-x: auto;
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    border-radius: 20px;
+}
+
+/* Étape 3 : Styles du tableau et bordures internes */
+.table {
+    margin-bottom: 0;
+}
+
+.table thead {
+    background-color: #f7f9fc;
+}
+
+.table th {
+    color: #6c757d; /* Gris pour les en-têtes de colonne */
+    font-weight: 600;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border: none;
+    padding: 1rem 1.5rem;
+    white-space: nowrap;
+}
+
+.table td {
+    color: #343a40; /* Texte principal sombre */
+    border-top: 1px solid #e9ecef; /* Ligne de séparation claire */
+    padding: 1.25rem 1.5rem;
+    vertical-align: middle;
+    white-space: nowrap;
+}
+
+.table td strong {
+    font-weight: 600;
+}
+
+.table tbody tr:hover {
+    background-color: #f1f5ff; /* Un bleu très léger au survol */
+}
+
+.table .badge {
+    /* Style simple et contrasté pour une lisibilité maximale */
+    background-color: #343a40; /* Fond gris foncé/noir */
+    color: #ffffff; /* Texte blanc */
+    padding: 0.5em 0.8em;
+    font-weight: 600;
+    border-radius: 8px;
+}
+
+/* Réinitialisation de styles superflus */
+.table tbody tr:hover {
+    background-color: rgba(102, 126, 234, 0.05);
+    transform: none;
+    box-shadow: none;
+}
+.table thead th, .table tbody tr {
+    background: transparent !important;
+}
+
+/* Badges et boutons */
+.badge {
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-weight: 600;
+    background: linear-gradient(135deg, #667eea, #764ba2) !important;
+}
+
+.btn-group .btn {
+    border-radius: 8px;
+    transition: all 0.2s ease;
+}
+
+.btn-group .btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+/* Animation d'apparition des lignes */
+@keyframes slideInFromBottom {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.event-row {
+    animation: slideInFromBottom 0.6s ease forwards;
+}
+
+.event-row:nth-child(1) { animation-delay: 0.1s; }
+.event-row:nth-child(2) { animation-delay: 0.2s; }
+.event-row:nth-child(3) { animation-delay: 0.3s; }
+.event-row:nth-child(4) { animation-delay: 0.4s; }
+.event-row:nth-child(5) { animation-delay: 0.5s; }
+
+/* Responsive design pour les tableaux */
+@media (max-width: 768px) {
+    /* Amélioration du tableau sur mobile */
+    .table-responsive {
+        font-size: 0.9rem;
+    }
+    
+    .table th,
+    .table td {
+        padding: 1rem 0.75rem !important;
+    }
+    
+    /* Réduire la taille des badges sur mobile */
+    .badge {
+        font-size: 0.75rem;
+        padding: 0.5rem 0.8rem;
+    }
+    
+    /* Ajuster les boutons d'action sur mobile */
+    .btn-group .btn {
+        padding: 0.5rem 0.6rem;
+        font-size: 0.85rem;
+    }
+    
+    /* Améliorer l'espacement du header sur mobile */
+    .card-header .row {
+        margin: 0;
+    }
+    
+    .card-header .col-12 {
+        padding: 0;
+    }
+}
+
+@media (max-width: 576px) {
+    /* Encore plus compact sur très petits écrans */
+    .table th,
+    .table td {
+        padding: 0.75rem 0.5rem !important;
+        font-size: 0.85rem;
+    }
+    
+    .btn-group .btn {
+        padding: 0.4rem 0.5rem;
+        font-size: 0.8rem;
+    }
+    
+    .badge {
+        font-size: 0.7rem;
+        padding: 0.4rem 0.6rem;
+    }
+}
+
+/* --- En-tête de la carte --- */
+.event-card .card-header {
+    background-color: #f7f9fc; /* Gris très clair pour distinguer l'en-tête */
+    border-bottom: 1px solid #e9ecef;
+    padding: 1.25rem 1.5rem;
+}
+
+.event-card .card-header .h4 {
+    color: #343a40; /* Texte sombre et lisible */
+    font-weight: 600;
+}
+
+.event-card .card-header .btn-primary {
+    border-radius: 10px;
+    font-weight: 500;
+}
+
+/* --- Corps de la carte et Tableau --- */
+.event-card .card-body {
+    padding: 0;
+}
+
+.table-responsive {
+    /* Crée un effet de "carte dans la carte" pour le tableau */
+    border: 1px solid #e9ecef;
+    border-radius: 12px;
+    overflow: auto; /* Permet le défilement horizontal et vertical */
+}
+
+/* --- Pied de page et Pagination --- */
+.event-card .card-footer {
+    background-color: #f7f9fc; /* Même couleur que l'en-tête pour l'harmonie */
+    border-top: 1px solid #e9ecef;
+    padding: 1rem;
+}
+
+.pagination {
+    margin-bottom: 0;
+    justify-content: center;
+}
+
+.pagination .page-item .page-link {
+    background-color: #ffffff;
+    border: 1px solid #dee2e6;
+    color: #495057;
+    margin: 0 3px;
+    border-radius: 8px;
+    transition: all 0.2s;
+}
+
+.pagination .page-item .page-link:hover {
+    background-color: #e9ecef;
+    border-color: #dee2e6;
+}
+
+.pagination .page-item.active .page-link {
+    background-color: var(--bs-primary);
+    border-color: var(--bs-primary);
+    color: white;
+    box-shadow: 0 4px 8px rgba(var(--bs-primary-rgb), 0.3);
+}
+
+.pagination .page-item.disabled .page-link {
+    background-color: #f8f9fa;
+    color: #adb5bd;
+    border-color: #dee2e6;
+} 

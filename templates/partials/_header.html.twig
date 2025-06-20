@@ -3,7 +3,7 @@
     <div class="container-fluid">
         {# Logo/Titre à gauche #}
         <div class="navbar-brand">
-            <h1 class="h4 mb-0">Gestion d'événements</h1>
+            <h1 class="h4 mb-0">Event Pro Web Client</h1>
         </div>
 
         {# Menu burger pour mobile et desktop #}
@@ -27,13 +27,8 @@
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="#">
+                        <a class="nav-link" href="{{ path('app_events') }}">
                             <i class="bi bi-calendar-event"></i> Mes Événements
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#">
-                            <i class="bi bi-calendar-plus"></i> Créer un Événement
                         </a>
                     </li>
                     <li class="nav-item">

@@ -195,6 +195,11 @@
     color: white;
 }
 
+/* Styles pour les alertes Bootstrap sur cette page */
+.account-info-card .alert.alert-success {
+    color: white; /* Assure la lisibilité sur fond sombre/vert */
+}
+
 /* Styles pour les alertes */
 .account-alert {
     padding: 15px 20px;
@@ -204,21 +209,35 @@
 }
 
 .account-alert-success {
-    background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
-    color: #155724;
-    border-left: 4px solid #28a745;
+    background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+    color: white;
 }
 
 .account-alert-warning {
-    background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%);
-    color: #856404;
-    border-left: 4px solid #ffc107;
+    background: linear-gradient(135deg, #ffc107 0%, #fd7e14 100%);
+    color: #212529;
 }
 
 .account-alert-danger {
-    background: linear-gradient(135deg, #f8d7da 0%, #f5c6cb 100%);
-    color: #721c24;
-    border-left: 4px solid #dc3545;
+    background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+    color: white;
+}
+
+/* Styles pour les badges de statut */
+.bg-success-soft {
+    background-color: #198754; /* Fond vert solide */
+    color: #ffffff; /* Texte blanc */
+}
+
+.bg-warning-soft {
+    background-color: #fd7e14; /* Fond orange solide */
+    color: #ffffff; /* Texte blanc */
+}
+
+/* On s'assure que le badge de succès a un texte lisible */
+.badge.bg-success-soft {
+    background-color: #198754; /* On force le fond vert solide */
+    color: #ffffff !important; /* On force le texte blanc pour être sûr */
 }
 
 /* Responsive design pour la page de compte */
@@ -256,4 +275,8 @@
     .account-info-card {
         padding: 20px;
     }
+}
+
+@media (max-width: 992px) {
+    /* ... existing code ... */
 } 

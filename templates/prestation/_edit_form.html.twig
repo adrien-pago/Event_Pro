@@ -1,0 +1,15 @@
+{# templates/prestation/_edit_form.html.twig #}
+
+{{ form_start(form, {'action': path('app_prestation_edit', {'event_id': event.id, 'prestation_id': prestation.id})}) }}
+<div class="modal-header">
+    <h5 class="modal-title">Modifier la prestation "{{ prestation.nom }}"</h5>
+    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+</div>
+<div class="modal-body">
+    {{ form_widget(form) }}
+</div>
+<div class="modal-footer">
+    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+    <button type="submit" class="btn btn-primary">Enregistrer les modifications</button>
+</div>
+{{ form_end(form) }} 

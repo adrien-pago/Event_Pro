@@ -1,0 +1,200 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Prestations pour {{ event.eventName }}{% endblock %}
+
+{% block stylesheets %}
+    <link rel="stylesheet" href="{{ asset('assets/styles/prestation.css') }}">
+{% endblock %}
+
+{% block body %}
+<div class="container-fluid p-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="card shadow-sm border-0 prestation-card">
+                <div class="card-header">
+                    <div class="row align-items-center">
+                        <div class="col-12 col-md-8 mb-3 mb-md-0">
+                            <h2 class="h4 mb-0">
+                                Prestations {{ event.eventName }} de {{ event.clientName }}
+                            </h2>
+                        </div>
+                        <div class="col-12 col-md-4 text-md-end">
+                            <a href="{{ path('app_prestation_download_devis', {'event_id': event.id}) }}" class="btn btn-outline-secondary me-2">
+                                <i class="bi bi-file-earmark-pdf"></i> Devis+
+                            </a>
+                            {% if prestations.getTotalItemCount > 0 %}
+                                <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addPrestationModal">
+                                    <i class="bi bi-plus-circle"></i> Ajouter une prestation
+                                </button>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card-body p-3">
+                    {% if prestations.getTotalItemCount > 0 %}
+                        <div class="table-responsive">
+                            <table class="table table-hover mb-0">
+                                <thead>
+                                    <tr>
+                                        <th>Nom</th>
+                                        <th>Prix</th>
+                                        <th>Marge</th>
+                                        <th>Durée</th>
+                                        <th class="text-center">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for prestation in prestations %}
+                                        <tr>
+                                            <td><strong>{{ prestation.nom }}</strong></td>
+                                            <td>{{ prestation.prix|number_format(2, ',', ' ') }} €</td>
+                                            <td>{{ prestation.marge|number_format(2, ',', ' ') }} €</td>
+                                            <td>{{ prestation.duree }}</td>
+                                            <td class="text-center">
+                                                <div class="btn-group">
+                                                    <button type="button" class="btn btn-sm btn-outline-primary edit-btn" title="Modifier" data-url="{{ path('app_prestation_edit', {'event_id': event.id, 'prestation_id': prestation.id}) }}">
+                                                        <i class="bi bi-pencil"></i>
+                                                    </button>
+                                                    <button type="button" class="btn btn-sm btn-outline-danger" title="Supprimer" onclick="confirmDelete(event, {{ prestation.id }}, '{{ prestation.nom|e('js') }}', '{{ csrf_token('delete' ~ prestation.id) }}')">
+                                                        <i class="bi bi-trash"></i>
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                                <tfoot>
+                                    <tr class="table-light">
+                                        <th class="text-end" colspan="1">Total :</th>
+                                        <th>{{ totalPrix|number_format(2, ',', ' ') }} €</th>
+                                        <th>{{ totalMarge|number_format(2, ',', ' ') }} €</th>
+                                        <td colspan="2"></td>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="text-center p-5">
+                            <h3 class="h5 text-muted mb-3">Aucune prestation pour cet événement.</h3>
+                            <button type="button" class="btn btn-primary btn-lg" data-bs-toggle="modal" data-bs-target="#addPrestationModal">
+                                <i class="bi bi-plus-circle"></i> Ajouter la première prestation
+                            </button>
+                        </div>
+                    {% endif %}
+                </div>
+
+                <div class="card-footer">
+                    {{ knp_pagination_render(prestations) }}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal pour AJOUTER une prestation -->
+<div class="modal fade" id="addPrestationModal" tabindex="-1" aria-labelledby="addPrestationModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            {{ form_start(form) }}
+            <div class="modal-header">
+                <h5 class="modal-title" id="addPrestationModalLabel">Ajouter une nouvelle prestation</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                {{ form_widget(form) }}
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                <button type="submit" class="btn btn-primary">Enregistrer</button>
+            </div>
+            {{ form_end(form) }}
+        </div>
+    </div>
+</div>
+
+<!-- Modal pour MODIFIER une prestation (le contenu sera chargé en AJAX) -->
+<div class="modal fade" id="editPrestationModal" tabindex="-1" aria-labelledby="editPrestationModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content" id="editPrestationModalContent">
+            <!-- Le contenu du formulaire de modification sera injecté ici -->
+        </div>
+    </div>
+</div>
+
+<!-- Modal de confirmation de suppression -->
+<div class="modal fade" id="deletePrestationModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteModalLabel">Confirmer la suppression</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>Êtes-vous sûr de vouloir supprimer la prestation "<strong id="prestationName"></strong>" ?</p>
+                <p class="text-danger"><small>Cette action est irréversible.</small></p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                <form id="deleteForm" method="post" class="d-inline">
+                    <input type="hidden" name="_token" id="deleteToken">
+                    <button type="submit" class="btn btn-danger">Supprimer</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block javascripts %}
+<script>
+function confirmDelete(event, prestationId, prestationName, csrfToken) {
+    event.preventDefault();
+    
+    const modal = new bootstrap.Modal(document.getElementById('deletePrestationModal'));
+    
+    document.getElementById('prestationName').textContent = prestationName;
+    const form = document.getElementById('deleteForm');
+    form.action = `/event/{{ event.id }}/prestations/${prestationId}/delete`;
+    document.getElementById('deleteToken').value = csrfToken;
+    
+    modal.show();
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    // Gestion de la modale de modification
+    const editModal = new bootstrap.Modal(document.getElementById('editPrestationModal'));
+    const editModalContent = document.getElementById('editPrestationModalContent');
+
+    document.querySelectorAll('.edit-btn').forEach(button => {
+        button.addEventListener('click', function(event) {
+            event.preventDefault();
+            const url = this.dataset.url;
+
+            // Affiche un spinner de chargement (look moderne)
+            editModalContent.innerHTML = `
+                <div class="modal-body text-center p-5">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Chargement...</span>
+                    </div>
+                </div>
+            `;
+            editModal.show();
+
+            // Requête AJAX pour récupérer le formulaire
+            fetch(url, {
+                headers: { 'X-Requested-With': 'XMLHttpRequest' }
+            })
+                .then(response => response.text())
+                .then(html => {
+                    editModalContent.innerHTML = html;
+                })
+                .catch(error => {
+                    console.error('Erreur lors du chargement du formulaire:', error);
+                    editModalContent.innerHTML = '<div class="modal-body"><p class="text-danger">Impossible de charger le formulaire.</p></div>';
+                });
+        });
+    });
+});
+</script>
+{% endblock %} 
