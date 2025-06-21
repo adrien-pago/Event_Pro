@@ -1,11 +1,13 @@
 # config/packages/doctrine.yaml
 doctrine:
     dbal:
-        # on se sert de DATABASE_URL pour que SQLite crée var/data.db automatiquement
+        # configure these for your database server
         url: '%env(resolve:DATABASE_URL)%'
-        driver: 'pdo_sqlite'
-        charset: UTF8
-        server_version: '3.34'
+
+        # IMPORTANT: You MUST configure your server version,
+        # either here or in the DATABASE_URL env var (e.g. serverVersion=15)
+        #server_version: '15'
+
         profiling_collect_backtrace: '%kernel.debug%'
         use_savepoints: true
 
