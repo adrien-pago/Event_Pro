@@ -3,7 +3,7 @@
 {% block title %}Modifier l'événement : {{ event.eventName }}{% endblock %}
 
 {% block body %}
-<div class="container my-5">
+<div class="container my-5" data-page="event-edit">
     <div class="row justify-content-center">
         <div class="col-lg-8">
             <div class="card shadow-lg border-0 rounded-lg">
@@ -50,5 +50,5 @@
 {% endblock %}
 
 {% block javascripts %}
-    {{ encore_entry_script_tags('event') }}
+    {{ encore_entry_script_tags('app') }}
 {% endblock %} 

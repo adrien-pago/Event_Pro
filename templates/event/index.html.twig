@@ -3,7 +3,7 @@
 {% block title %}Mes Événements{% endblock %}
 
 {% block body %}
-<div class="container-fluid p-4">
+<div class="container-fluid p-4" data-page="event-index">
     <div class="row">
         <div class="col-12">
             <div class="card shadow-sm border-0 event-card">
@@ -39,7 +39,7 @@
                                 </thead>
                                 <tbody>
                                     {% for event in events %}
-                                        <tr class="event-row" data-url="{{ path('app_prestation_index', {'event_id': event.id}) }}">
+                                        <tr class="event-row" data-url="{{ path('app_prestation_index', {'event_id': event.id}) }}" data-event-id="{{ event.id }}" data-event-name="{{ event.eventName|e('html_attr') }}">
                                             <td><strong>{{ event.clientName }}</strong></td>
                                             <td>{{ event.eventName }}</td>
                                             <td>
@@ -64,10 +64,9 @@
                                                 <a href="{{ path('app_event_edit', {'id': event.id}) }}" class="btn btn-outline-primary btn-sm me-2" title="Modifier">
                                                     <i class="bi bi-pencil-fill"></i>
                                                 </a>
-                                                <form method="post" action="{{ path('app_event_delete', {'id': event.id}) }}" class="d-inline" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer l\'événement \'{{ event.eventName|e('js') }}\' ?');">
-                                                    <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ event.id) }}">
-                                                    <button class="btn btn-outline-danger btn-sm" title="Supprimer"><i class="bi bi-trash-fill"></i></button>
-                                                </form>
+                                                <button class="btn btn-outline-danger btn-sm delete-event-btn" title="Supprimer" data-event-id="{{ event.id }}" data-event-name="{{ event.eventName|e('html_attr') }}">
+                                                    <i class="bi bi-trash-fill"></i>
+                                                </button>
                                             </td>
                                         </tr>
                                     {% endfor %}
@@ -109,7 +108,7 @@
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
                 <form id="deleteForm" method="post" style="display: inline;">
-                    <input type="hidden" name="_token" id="csrfToken">
+                    <input type="hidden" name="_token" id="csrfToken" value="{{ csrf_token('delete') }}">
                     <button type="submit" class="btn btn-danger">Supprimer</button>
                 </form>
             </div>
@@ -119,30 +118,5 @@
 {% endblock %}
 
 {% block javascripts %}
-<script>
-function confirmDelete(eventId, eventName) {
-    event.stopPropagation();
-    document.getElementById('eventName').textContent = eventName;
-    document.getElementById('deleteForm').action = '{{ path('app_event_delete', {'id': 'PLACEHOLDER'}) }}'.replace('PLACEHOLDER', eventId);
-    document.getElementById('csrfToken').value = '{{ csrf_token('delete') }}';
-    const deleteModal = new bootstrap.Modal(document.getElementById('deleteModal'));
-    deleteModal.show();
-}
-
-document.addEventListener('DOMContentLoaded', function() {
-    const rows = document.querySelectorAll('.event-row');
-    rows.forEach(row => {
-        row.addEventListener('click', function() {
-            window.location.href = this.dataset.url;
-        });
-
-        const interactiveElements = row.querySelectorAll('a, button');
-        interactiveElements.forEach(el => {
-            el.addEventListener('click', function(e) {
-                e.stopPropagation();
-            });
-        });
-    });
-});
-</script>
+    {{ encore_entry_script_tags('app') }}
 {% endblock %} 

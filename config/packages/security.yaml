@@ -46,7 +46,8 @@ security:
     access_control:
         - { path: ^/login$, roles: PUBLIC_ACCESS }
         - { path: ^/register$, roles: PUBLIC_ACCESS }
-        - { path: ^/$, roles: ROLE_USER }
+        - { path: ^/connect/google, roles: PUBLIC_ACCESS }
+        - { path: ^/$, roles: PUBLIC_ACCESS }
         - { path: ^/home, roles: ROLE_USER }
         - { path: ^/account, roles: ROLE_USER }
         - { path: ^/events, roles: ROLE_USER }

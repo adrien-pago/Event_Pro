@@ -1,7 +1,22 @@
+// Gestion des événements
 document.addEventListener('DOMContentLoaded', function() {
+    const currentPage = document.querySelector('[data-page]')?.getAttribute('data-page');
+    
+    // Gestion des formulaires d'événements (new et edit)
+    if (currentPage === 'event-new' || currentPage === 'event-edit') {
+        initEventForm();
+    }
+    
+    // Gestion de la liste des événements
+    if (currentPage === 'event-index') {
+        initEventList();
+    }
+});
+
+// Initialisation du formulaire d'événement
+function initEventForm() {
     const isFullDay = document.getElementById('event_isFullDay');
     
-    // S'arrête si on n'est pas sur une page avec le formulaire d'événement
     if (!isFullDay) {
         return;
     }
@@ -17,13 +32,10 @@ document.addEventListener('DOMContentLoaded', function() {
             if (endTime) endTime.value = '23:59';
         } else {
             timeFields.style.display = '';
-            // On ne vide pas les champs pour que l'utilisateur puisse
-            // facilement revenir en arrière après un clic accidentel.
         }
     }
     
     isFullDay.addEventListener('change', toggleTimeFields);
-    // On vérifie l'état initial au chargement de la page
     toggleTimeFields();
     
     // Spinner pour le bouton de soumission
@@ -37,4 +49,41 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         }
     }
-}); 
+}
+
+// Initialisation de la liste des événements
+function initEventList() {
+    // Gestion des clics sur les lignes d'événements
+    const rows = document.querySelectorAll('.event-row');
+    rows.forEach(row => {
+        row.addEventListener('click', function() {
+            window.location.href = this.dataset.url;
+        });
+
+        const interactiveElements = row.querySelectorAll('a, button');
+        interactiveElements.forEach(el => {
+            el.addEventListener('click', function(e) {
+                e.stopPropagation();
+            });
+        });
+    });
+    
+    // Gestion de la suppression d'événements
+    const deleteButtons = document.querySelectorAll('.delete-event-btn');
+    deleteButtons.forEach(button => {
+        button.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            const eventId = this.dataset.eventId;
+            const eventName = this.dataset.eventName;
+            
+            // Afficher la modal de confirmation
+            document.getElementById('eventName').textContent = eventName;
+            document.getElementById('deleteForm').action = `/events/${eventId}/delete`;
+            
+            const deleteModal = new bootstrap.Modal(document.getElementById('deleteModal'));
+            deleteModal.show();
+        });
+    });
+} 

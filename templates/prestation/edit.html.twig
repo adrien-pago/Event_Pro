@@ -3,7 +3,7 @@
 {% block title %}Modifier la prestation : {{ prestation.nom }}{% endblock %}
 
 {% block body %}
-<div class="container mt-5">
+<div class="container mt-5" data-page="prestation-edit">
     <div class="row justify-content-center">
         <div class="col-md-8">
             <div class="card">
@@ -23,4 +23,8 @@
         </div>
     </div>
 </div>
+{% endblock %}
+
+{% block javascripts %}
+    {{ encore_entry_script_tags('app') }}
 {% endblock %} 

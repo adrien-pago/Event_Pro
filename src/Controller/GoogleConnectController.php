@@ -13,14 +13,12 @@ class GoogleConnectController extends AbstractController
     #[Route('/connect/google', name: 'connect_google_start')]
     public function connectAction(ClientRegistry $clientRegistry): RedirectResponse
     {
-        // Redirige vers Google
+        // Redirige vers Google avec des scopes minimaux pour éviter ModSecurity
         return $clientRegistry
             ->getClient('google') // Clé à définir dans un fichier de config
             ->redirect([
-                'profile', 
                 'email', 
-                'https://www.googleapis.com/auth/calendar.events', // Permission pour gérer les événements
-                'https://www.googleapis.com/auth/calendar.readonly' // Permission pour lister les calendriers
+                'openid'
             ], [
                 'prompt' => 'consent select_account', // Force le consentement ET la sélection
                 'access_type' => 'offline' // Demande le refresh_token

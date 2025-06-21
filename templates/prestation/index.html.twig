@@ -7,7 +7,7 @@
 {% endblock %}
 
 {% block body %}
-<div class="container-fluid p-4">
+<div class="container-fluid p-4" data-page="prestation-index" data-event-id="{{ event.id }}">
     <div class="row">
         <div class="col-12">
             <div class="card shadow-sm border-0 prestation-card">
@@ -56,7 +56,7 @@
                                                     <button type="button" class="btn btn-sm btn-outline-primary edit-btn" title="Modifier" data-url="{{ path('app_prestation_edit', {'event_id': event.id, 'prestation_id': prestation.id}) }}">
                                                         <i class="bi bi-pencil"></i>
                                                     </button>
-                                                    <button type="button" class="btn btn-sm btn-outline-danger" title="Supprimer" onclick="confirmDelete(event, {{ prestation.id }}, '{{ prestation.nom|e('js') }}', '{{ csrf_token('delete' ~ prestation.id) }}')">
+                                                    <button type="button" class="btn btn-sm btn-outline-danger delete-prestation-btn" title="Supprimer" data-prestation-id="{{ prestation.id }}" data-prestation-name="{{ prestation.nom|e('html_attr') }}" data-csrf-token="{{ csrf_token('delete' ~ prestation.id) }}">
                                                         <i class="bi bi-trash"></i>
                                                     </button>
                                                 </div>
@@ -147,54 +147,5 @@
 {% endblock %}
 
 {% block javascripts %}
-<script>
-function confirmDelete(event, prestationId, prestationName, csrfToken) {
-    event.preventDefault();
-    
-    const modal = new bootstrap.Modal(document.getElementById('deletePrestationModal'));
-    
-    document.getElementById('prestationName').textContent = prestationName;
-    const form = document.getElementById('deleteForm');
-    form.action = `/event/{{ event.id }}/prestations/${prestationId}/delete`;
-    document.getElementById('deleteToken').value = csrfToken;
-    
-    modal.show();
-}
-
-document.addEventListener('DOMContentLoaded', function() {
-    // Gestion de la modale de modification
-    const editModal = new bootstrap.Modal(document.getElementById('editPrestationModal'));
-    const editModalContent = document.getElementById('editPrestationModalContent');
-
-    document.querySelectorAll('.edit-btn').forEach(button => {
-        button.addEventListener('click', function(event) {
-            event.preventDefault();
-            const url = this.dataset.url;
-
-            // Affiche un spinner de chargement (look moderne)
-            editModalContent.innerHTML = `
-                <div class="modal-body text-center p-5">
-                    <div class="spinner-border text-primary" role="status">
-                        <span class="visually-hidden">Chargement...</span>
-                    </div>
-                </div>
-            `;
-            editModal.show();
-
-            // Requête AJAX pour récupérer le formulaire
-            fetch(url, {
-                headers: { 'X-Requested-With': 'XMLHttpRequest' }
-            })
-                .then(response => response.text())
-                .then(html => {
-                    editModalContent.innerHTML = html;
-                })
-                .catch(error => {
-                    console.error('Erreur lors du chargement du formulaire:', error);
-                    editModalContent.innerHTML = '<div class="modal-body"><p class="text-danger">Impossible de charger le formulaire.</p></div>';
-                });
-        });
-    });
-});
-</script>
+    {{ encore_entry_script_tags('app') }}
 {% endblock %} 

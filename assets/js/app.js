@@ -8,6 +8,7 @@ import './auth.js';
 import './home.js';
 import './account.js';
 import './event.js';
+import './prestation.js';
 
 class AppManager {
     constructor() {
@@ -19,6 +20,13 @@ class AppManager {
      * Détection de la page courante
      */
     detectCurrentPage() {
+        // Vérifier d'abord l'attribut data-page sur le conteneur principal
+        const mainContainer = document.querySelector('[data-page]');
+        if (mainContainer) {
+            return mainContainer.getAttribute('data-page');
+        }
+        
+        // Fallback sur la détection par URL
         const path = window.location.pathname;
         
         if (path.includes('/login') || path.includes('/register')) {
@@ -27,6 +35,10 @@ class AppManager {
             return 'account';
         } else if (path === '/' || path === '/home') {
             return 'home';
+        } else if (path.includes('/events')) {
+            return 'event-index';
+        } else if (path.includes('/prestations')) {
+            return 'prestation-index';
         }
         
         return 'default';
