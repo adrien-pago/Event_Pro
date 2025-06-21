@@ -57,9 +57,14 @@
                         </div>
                         <div class="text-end">
                             {% if app.user.googleId is not null %}
-                                <a href="{{ path('google_disconnect') }}" class="btn btn-outline-danger" onclick="return confirm('Êtes-vous sûr de vouloir déconnecter votre compte Google ?');">
-                                    <i class="bi bi-google"></i> Déconnecter
-                                </a>
+                                <div class="btn-group" role="group">
+                                    <a href="{{ path('connect_google_calendar') }}" class="btn btn-outline-primary">
+                                        <i class="bi bi-google"></i> Reconnecter
+                                    </a>
+                                    <a href="{{ path('google_disconnect') }}" class="btn btn-outline-danger" onclick="return confirm('Êtes-vous sûr de vouloir déconnecter votre compte Google ?');">
+                                        <i class="bi bi-google"></i> Déconnecter
+                                    </a>
+                                </div>
                             {% else %}
                                 <a href="{{ path('connect_google_start') }}" class="btn btn-primary">
                                     <i class="bi bi-google"></i> Se connecter

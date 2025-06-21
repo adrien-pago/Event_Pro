@@ -25,6 +25,23 @@ class GoogleConnectController extends AbstractController
             ]);
     }
 
+    #[Route('/connect/google/calendar', name: 'connect_google_calendar')]
+    public function connectCalendarAction(ClientRegistry $clientRegistry): RedirectResponse
+    {
+        // Redirige vers Google avec les permissions Calendar
+        return $clientRegistry
+            ->getClient('google')
+            ->redirect([
+                'email', 
+                'openid',
+                'https://www.googleapis.com/auth/calendar',
+                'https://www.googleapis.com/auth/calendar.events'
+            ], [
+                'prompt' => 'consent select_account', // Force le consentement ET la sélection
+                'access_type' => 'offline' // Demande le refresh_token
+            ]);
+    }
+
     #[Route('/connect/google/check', name: 'connect_google_check')]
     public function connectCheckAction(): void
     {
