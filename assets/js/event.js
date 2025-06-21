@@ -77,10 +77,20 @@ function initEventList() {
             
             const eventId = this.dataset.eventId;
             const eventName = this.dataset.eventName;
+            const csrfTokenValue = this.dataset.csrfToken;
             
             // Afficher la modal de confirmation
             document.getElementById('eventName').textContent = eventName;
-            document.getElementById('deleteForm').action = `/events/${eventId}/delete`;
+            
+            // Créer un formulaire temporaire avec le bon token CSRF
+            const form = document.getElementById('deleteForm');
+            form.action = `/events/${eventId}/delete`;
+            
+            // Mettre à jour le token CSRF
+            const csrfInput = form.querySelector('input[name="_token"]');
+            if (csrfInput) {
+                csrfInput.value = csrfTokenValue;
+            }
             
             const deleteModal = new bootstrap.Modal(document.getElementById('deleteModal'));
             deleteModal.show();

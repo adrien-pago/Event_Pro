@@ -64,7 +64,7 @@
                                                 <a href="{{ path('app_event_edit', {'id': event.id}) }}" class="btn btn-outline-primary btn-sm me-2" title="Modifier">
                                                     <i class="bi bi-pencil-fill"></i>
                                                 </a>
-                                                <button class="btn btn-outline-danger btn-sm delete-event-btn" title="Supprimer" data-event-id="{{ event.id }}" data-event-name="{{ event.eventName|e('html_attr') }}">
+                                                <button class="btn btn-outline-danger btn-sm delete-event-btn" title="Supprimer" data-event-id="{{ event.id }}" data-event-name="{{ event.eventName|e('html_attr') }}" data-csrf-token="{{ csrf_token('delete' ~ event.id) }}">
                                                     <i class="bi bi-trash-fill"></i>
                                                 </button>
                                             </td>
@@ -108,7 +108,7 @@
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
                 <form id="deleteForm" method="post" style="display: inline;">
-                    <input type="hidden" name="_token" id="csrfToken" value="{{ csrf_token('delete') }}">
+                    <input type="hidden" name="_token" id="csrfToken" value="">
                     <button type="submit" class="btn btn-danger">Supprimer</button>
                 </form>
             </div>
