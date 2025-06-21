@@ -22,8 +22,17 @@ class Event
     #[ORM\Column(length: 255)]
     private ?string $eventName = null;
 
-    #[ORM\Column(type: 'datetime')]
+    #[ORM\Column(type: 'date')]
     private ?\DateTimeInterface $eventDate = null;
+
+    #[ORM\Column(type: 'time', nullable: true)]
+    private ?\DateTimeInterface $startTime = null;
+
+    #[ORM\Column(type: 'time', nullable: true)]
+    private ?\DateTimeInterface $endTime = null;
+
+    #[ORM\Column(type: 'boolean', options: ['default' => false])]
+    private bool $isFullDay = false;
 
     #[ORM\ManyToOne(inversedBy: 'events')]
     #[ORM\JoinColumn(nullable: false)]
@@ -83,6 +92,39 @@ class Event
     public function setEventDate(\DateTimeInterface $eventDate): static
     {
         $this->eventDate = $eventDate;
+        return $this;
+    }
+
+    public function getStartTime(): ?\DateTimeInterface
+    {
+        return $this->startTime;
+    }
+
+    public function setStartTime(?\DateTimeInterface $startTime): static
+    {
+        $this->startTime = $startTime;
+        return $this;
+    }
+
+    public function getEndTime(): ?\DateTimeInterface
+    {
+        return $this->endTime;
+    }
+
+    public function setEndTime(?\DateTimeInterface $endTime): static
+    {
+        $this->endTime = $endTime;
+        return $this;
+    }
+
+    public function isFullDay(): bool
+    {
+        return $this->isFullDay;
+    }
+
+    public function setIsFullDay(bool $isFullDay): static
+    {
+        $this->isFullDay = $isFullDay;
         return $this;
     }
 

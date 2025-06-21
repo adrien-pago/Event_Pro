@@ -17,19 +17,42 @@
                     {{ form_row(form.clientName) }}
                     {{ form_row(form.eventName) }}
                     {{ form_row(form.eventDate) }}
+                    {{ form_row(form.isFullDay) }}
+
+                    <div id="time-fields">
+                        {{ form_row(form.startTime) }}
+                        {{ form_row(form.endTime) }}
+                    </div>
 
                     {% if form.googleCalendarId is defined %}
                         {{ form_row(form.googleCalendarId) }}
                         <div class="form-text mb-3">
+                            <i class="bi bi-info-circle me-1"></i>
                             Choisissez un calendrier pour synchroniser cet événement. Laissez vide pour ne pas le synchroniser.
+                            {% if calendars_count > 0 %}
+                                <br><small class="text-success">{{ calendars_count }} calendrier(s) disponible(s)</small>
+                            {% endif %}
                         </div>
                     {% else %}
-                        <div class="alert alert-info d-flex align-items-center" role="alert">
-                            <i class="bi bi-info-circle-fill me-2"></i>
-                            <div>
-                                Pour synchroniser vos événements avec Google Calendar, veuillez d'abord connecter votre compte depuis la page <a href="{{ path('app_account') }}" class="alert-link">Mon Compte</a>.
+                        {% if google_connection_error %}
+                            <div class="alert alert-warning d-flex align-items-center" role="alert">
+                                <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                                <div>
+                                    <strong>Problème de connexion Google :</strong><br>
+                                    {{ google_connection_error }}
+                                    <br><br>
+                                    <a href="{{ path('google_disconnect') }}" class="btn btn-sm btn-outline-warning me-2">Déconnecter Google</a>
+                                    <a href="{{ path('connect_google_start') }}" class="btn btn-sm btn-primary">Se reconnecter</a>
+                                </div>
                             </div>
-                        </div>
+                        {% else %}
+                            <div class="alert alert-info d-flex align-items-center" role="alert">
+                                <i class="bi bi-info-circle-fill me-2"></i>
+                                <div>
+                                    Pour synchroniser vos événements avec Google Calendar, veuillez d'abord connecter votre compte depuis la page <a href="{{ path('app_account') }}" class="alert-link">Mon Compte</a>.
+                                </div>
+                            </div>
+                        {% endif %}
                     {% endif %}
 
                     <div class="d-grid gap-2 mt-4">
@@ -49,35 +72,5 @@
 {% endblock %}
 
 {% block javascripts %}
-<script>
-// Validation du formulaire
-(function() {
-    'use strict';
-    window.addEventListener('load', function() {
-        var forms = document.getElementsByClassName('needs-validation');
-        var validation = Array.prototype.filter.call(forms, function(form) {
-            form.addEventListener('submit', function(event) {
-                if (form.checkValidity() === false) {
-                    event.preventDefault();
-                    event.stopPropagation();
-                }
-                form.classList.add('was-validated');
-            }, false);
-        });
-    }, false);
-})();
-
-// Définir la date minimale à aujourd'hui
-document.addEventListener('DOMContentLoaded', function() {
-    const today = new Date();
-    const year = today.getFullYear();
-    const month = String(today.getMonth() + 1).padStart(2, '0');
-    const day = String(today.getDate()).padStart(2, '0');
-    const hours = String(today.getHours()).padStart(2, '0');
-    const minutes = String(today.getMinutes()).padStart(2, '0');
-    
-    const minDateTime = `${year}-${month}-${day}T${hours}:${minutes}`;
-    document.getElementById('eventDate').min = minDateTime;
-});
-</script>
+    {{ encore_entry_script_tags('event') }}
 {% endblock %} 

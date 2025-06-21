@@ -42,7 +42,18 @@
                                         <tr class="event-row" data-url="{{ path('app_prestation_index', {'event_id': event.id}) }}">
                                             <td><strong>{{ event.clientName }}</strong></td>
                                             <td>{{ event.eventName }}</td>
-                                            <td><span class="badge">{{ event.eventDate|date('d/m/Y H:i') }}</span></td>
+                                            <td>
+                                                <span class="badge">{{ event.eventDate|date('d/m/Y') }}</span>
+                                                {% if event.startTime and event.endTime %}
+                                                    <br><small class="text-muted">
+                                                        {% if event.isFullDay %}
+                                                            <i class="bi bi-calendar-day"></i> Journée complète
+                                                        {% else %}
+                                                            <i class="bi bi-clock"></i> {{ event.startTime|date('H:i') }} - {{ event.endTime|date('H:i') }}
+                                                        {% endif %}
+                                                    </small>
+                                                {% endif %}
+                                            </td>
                                             <td class="text-center align-middle">
                                                 <span class="badge {{ event.googleCalendarEventId ? 'bg-success' : 'bg-secondary' }}">
                                                     <i class="bi {{ event.googleCalendarEventId ? 'bi-cloud-check-fill' : 'bi-cloud-slash-fill' }}"></i>

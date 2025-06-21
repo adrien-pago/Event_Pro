@@ -17,6 +17,12 @@
                     {{ form_row(form.clientName) }}
                     {{ form_row(form.eventName) }}
                     {{ form_row(form.eventDate) }}
+                    {{ form_row(form.isFullDay) }}
+
+                    <div id="time-fields">
+                        {{ form_row(form.startTime) }}
+                        {{ form_row(form.endTime) }}
+                    </div>
 
                     {% if event.googleCalendarEventId %}
                         <div class="alert alert-success d-flex align-items-center" role="alert">
@@ -44,22 +50,5 @@
 {% endblock %}
 
 {% block javascripts %}
-<script>
-// Validation du formulaire
-(function() {
-    'use strict';
-    window.addEventListener('load', function() {
-        var forms = document.getElementsByClassName('needs-validation');
-        var validation = Array.prototype.filter.call(forms, function(form) {
-            form.addEventListener('submit', function(event) {
-                if (form.checkValidity() === false) {
-                    event.preventDefault();
-                    event.stopPropagation();
-                }
-                form.classList.add('was-validated');
-            }, false);
-        });
-    }, false);
-})();
-</script>
+    {{ encore_entry_script_tags('event') }}
 {% endblock %} 

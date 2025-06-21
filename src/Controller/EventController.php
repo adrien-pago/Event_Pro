@@ -40,13 +40,15 @@ class EventController extends AbstractController
         $event->setUser($this->getUser());
 
         $calendars = [];
+        $googleConnectionError = null;
+        
         // On récupère les calendriers seulement si l'utilisateur est connecté à Google
         if ($this->getUser() && $this->getUser()->getGoogleId()) {
             try {
                 $calendars = $calendarService->getCalendars();
             } catch (\Exception $e) {
-                // On peut ajouter un message flash si on veut informer l'utilisateur de l'échec
-                $this->addFlash('warning', 'Impossible de récupérer les calendriers Google pour le moment.');
+                $googleConnectionError = $e->getMessage();
+                $this->addFlash('warning', 'Impossible de récupérer les calendriers Google : ' . $e->getMessage());
             }
         }
 
@@ -57,6 +59,11 @@ class EventController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            // Sécurité côté serveur : si journée complète, on force les heures
+            if ($event->isFullDay()) {
+                $event->setStartTime(new \DateTime('00:00'));
+                $event->setEndTime(new \DateTime('23:59'));
+            }
             
             // On vérifie si un calendrier a été sélectionné pour la synchronisation
             if ($form->has('googleCalendarId')) {
@@ -67,12 +74,12 @@ class EventController extends AbstractController
                         $googleEventId = $calendarService->addEvent($calendarId, $event);
                         if ($googleEventId) {
                             $event->setGoogleCalendarEventId($googleEventId);
-                            $this->addFlash('success', 'Événement synchronisé avec Google Calendar !');
+                            $this->addFlash('success', 'Événement créé et synchronisé avec Google Calendar !');
                         } else {
                             $this->addFlash('warning', 'L\'événement a été créé, mais la synchronisation avec Google a échoué.');
                         }
                     } catch (\Exception $e) {
-                        $this->addFlash('danger', 'Erreur critique lors de la synchronisation avec Google : ' . $e->getMessage());
+                        $this->addFlash('danger', 'Erreur lors de la synchronisation avec Google : ' . $e->getMessage());
                     }
                 }
             }
@@ -80,13 +87,18 @@ class EventController extends AbstractController
             $entityManager->persist($event);
             $entityManager->flush();
 
-            $this->addFlash('success', 'Événement créé avec succès !');
+            if (!$form->has('googleCalendarId') || !$form->get('googleCalendarId')->getData()) {
+                $this->addFlash('success', 'Événement créé avec succès !');
+            }
+            
             return $this->redirectToRoute('app_events');
         }
 
         return $this->render('event/new.html.twig', [
             'form' => $form->createView(),
-            'is_google_connected' => !empty($calendars)
+            'is_google_connected' => !empty($calendars),
+            'google_connection_error' => $googleConnectionError,
+            'calendars_count' => count($calendars)
         ]);
     }
 

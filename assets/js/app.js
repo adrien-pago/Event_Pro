@@ -7,6 +7,7 @@
 import './auth.js';
 import './home.js';
 import './account.js';
+import './event.js';
 
 class AppManager {
     constructor() {
