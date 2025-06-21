@@ -1,101 +1,142 @@
 #  Event Pro - Gestionnaire d'Événements
 
-**Event Pro** est une application web complète et moderne, développée avec **Symfony**, conçue pour simplifier la gestion d'événements professionnels. De la planification initiale à la génération de devis, en passant par la synchronisation avec des services externes comme Google Agenda, Event Pro centralise toutes les opérations pour une productivité maximale.
+**Event Pro** est une application web moderne et complète, développée avec le framework **Symfony**, conçue pour simplifier la gestion d'événements professionnels. De la planification à la synchronisation avec des services externes comme Google Agenda, Event Pro centralise toutes les opérations pour une productivité maximale.
 
 ---
 
-## ✨ Fonctionnalités
+## ✨ Fonctionnalités Clés
 
--   **Gestion de Compte Utilisateur Complète**
-    -   Inscription et connexion sécurisées.
-    -   **Connexion sociale avec Google (OAuth 2.0)** pour une authentification simplifiée.
-    -   Tableau de bord personnel pour visualiser et gérer les informations du compte.
-    -   Possibilité de **supprimer son compte** et toutes les données associées de manière sécurisée.
+-   **Gestion de Compte Utilisateur :**
+    -   Inscription et connexion sécurisées avec validation des formulaires.
+    -   **Connexion sociale via Google (OAuth 2.0)** pour une authentification rapide.
+    -   Tableau de bord personnel pour la gestion des informations du compte.
+    -   Déconnexion et possibilité de supprimer son compte et ses données.
 
--   **Gestion d'Événements (CRUD)**
-    -   Créez, visualisez, modifiez et supprimez des événements.
-    -   Interface de liste avec **pagination** pour une navigation aisée.
-    -   Sécurité : chaque utilisateur ne peut accéder qu'à ses propres événements.
+-   **Gestion d'Événements (CRUD) :**
+    -   Création, affichage, modification et suppression d'événements.
+    -   Interface de liste avec **pagination** pour une navigation fluide.
+    -   **Gestion fine de la durée :**
+        -   Support des événements sur une **journée complète**.
+        -   Définition d'**heures de début et de fin** précises.
+    -   Sécurité : chaque utilisateur ne peut accéder et gérer que ses propres événements.
 
--   **Gestion des Prestations par Événement**
-    -   Pour chaque événement, ajoutez et gérez des prestations détaillées (ex: traiteur, photographe, DJ).
-    -   **Interface 100% AJAX** via des fenêtres modales pour ajouter, modifier et supprimer des prestations sans rechargement de page.
-    -   Calcul dynamique des **totaux de prix et de marge** en temps réel.
+-   **Intégrations et Services :**
+    -   **Synchronisation avec Google Agenda :**
+        -   Ajout, mise à jour et suppression des événements dans le calendrier Google de l'utilisateur.
+        -   Gestion correcte de la durée (journée complète ou heures spécifiques).
+        -   Système robuste de **renouvellement de token** pour une connexion persistante.
+    -   **Gestion des Prestations (à venir) :**
+        -   L'interface est prête pour ajouter des prestations (traiteur, DJ, etc.) à chaque événement.
+    -   **Génération de Devis PDF (à venir) :**
+        -   La structure est en place pour générer des devis PDF en un clic.
 
--   **Intégrations et Services**
-    -   **Synchronisation avec Google Agenda** : Les événements créés dans l'application peuvent être automatiquement ajoutés au Google Agenda de l'utilisateur.
-    -   **Génération de Devis PDF** : Créez en un clic un devis professionnel et élégant au format PDF pour n'importe quel événement.
-
--   **Technologie et Design**
-    -   Interface utilisateur **moderne et entièrement responsive** (mobile, tablette, ordinateur).
-    -   Construit avec les meilleures pratiques de Symfony et Doctrine.
+-   **Interface et Expérience Utilisateur :**
+    -   Design **moderne et entièrement responsive** (mobile, tablette, ordinateur) basé sur Bootstrap 5.
+    -   Architecture JavaScript modulaire avec des fichiers dédiés par fonctionnalité (`event.js`, `prestation.js`).
+    -   Interactions dynamiques (masquage/affichage de champs, indicateurs de chargement) pour une meilleure UX.
 
 ---
 
 ## 🛠️ Stack Technique
 
--   **Backend** : Symfony 7 / PHP 8.2
--   **Frontend** : Twig, Bootstrap 5, Stimulus.js, SASS, Webpack Encore
--   **Base de Données** : Doctrine ORM (compatible MySQL, PostgreSQL, SQLite)
--   **Intégrations** : KnpUOAuth2ClientBundle (Google), Dompdf (PDF)
+-   **Backend :** Symfony 7 / PHP 8.2
+-   **Frontend :** Twig, JavaScript (ES6+), Bootstrap 5, Webpack Encore
+-   **Base de Données :** Doctrine ORM (utilisant SQLite en développement, compatible MySQL/PostgreSQL)
+-   **Intégrations :** KnpUOAuth2ClientBundle (Google)
 
 ---
 
-## 🚀 Guide d'Installation
+## 🚀 Guide de Déploiement
+
+Ce guide vous aidera à déployer l'application sur un serveur de production (type VPS).
 
 ### Prérequis
--   PHP 8.2 ou supérieur
+-   Serveur avec accès SSH (ex: Ubuntu 22.04)
+-   PHP 8.2 ou supérieur, avec les extensions `intl`, `pdo_sqlite` (ou `pdo_mysql`), `gd`, etc.
 -   Composer 2
--   Symfony CLI
 -   Node.js et npm
+-   Un serveur web (Nginx ou Apache)
+-   Un gestionnaire de base de données (MySQL/MariaDB ou PostgreSQL)
 
-### Étapes
+### Étapes du Déploiement
 
-1.  **Cloner le Repository**
+1.  **Cloner le Repository sur le Serveur**
     ```bash
-    git clone https://github.com/votre-nom/Wendding_Management.git
-    cd Wendding_Management
+    git clone https://github.com/votre-nom/Wendding_Management.git /var/www/event-pro
+    cd /var/www/event-pro
     ```
 
-2.  **Installer les Dépendances**
+2.  **Configuration de l'Environnement de Production**
+    -   Créez un fichier `.env.local` à partir du fichier `env.txt` :
+        ```bash
+        cp env.txt .env.local
+        ```
+    -   Éditez le fichier `.env.local` et configurez les variables :
+        -   `APP_ENV=prod`
+        -   `APP_SECRET=...` (générez une clé forte, par exemple avec `openssl rand -hex 32`)
+        -   `DATABASE_URL="mysql://user:password@127.0.0.1:3306/event_pro"` (adaptez à votre configuration)
+        -   Renseignez `GOOGLE_CLIENT_ID` et `GOOGLE_CLIENT_SECRET`. **Important :** N'oubliez pas d'ajouter l'URL de votre domaine (`https://votre-domaine.com/connect/google/check`) dans les URI de redirection autorisés sur votre console Google Cloud.
+
+3.  **Installer les Dépendances**
     ```bash
-    composer install
+    # Installez les dépendances PHP sans les packages de développement
+    composer install --no-dev --optimize-autoloader
+
+    # Installez les dépendances frontend
     npm install
     ```
 
-3.  **Configuration de l'Environnement**
-    -   **Base de données** : Configurez la variable `DATABASE_URL` pour pointer vers votre base de données.
-    -   **Google OAuth** :
-        -   Créez un projet sur la [Google Cloud Platform](https://console.cloud.google.com/).
-        -   Activez l'API **Google Calendar API**.
-        -   Créez des identifiants pour une "Application web" OAuth 2.0.
-        -   Ajoutez `https://127.0.0.1:8000/connect/google/check` comme URI de redirection autorisé.
-        -   Renseignez les variables `GOOGLE_CLIENT_ID` et `GOOGLE_CLIENT_SECRET` dans votre fichier `.env.local`.
-
-4.  **Base de Données**
+4.  **Compiler les Assets pour la Production**
     ```bash
-    # Créer la base de données
-    php bin/console doctrine:database:create
-
-    # Exécuter les migrations pour créer le schéma
-    php bin/console doctrine:migrations:migrate
-    ```
-
-5.  **Compiler les Assets Frontend**
-    ```bash
-    # Pour le développement (recompilation auto)
-    npm run watch
-
-    # Pour la production
     npm run build
     ```
+    Cette commande va minifier et versionner les fichiers CSS et JS dans le dossier `public/build`.
 
-6.  **Lancer le Serveur**
+5.  **Base de Données**
     ```bash
-    symfony server:start -d
+    # (Si nécessaire) Créez la base de données sur votre serveur MySQL/PostgreSQL
+    # Exécutez les migrations pour créer le schéma
+    php bin/console doctrine:migrations:migrate --no-interaction
     ```
 
-L'application est maintenant disponible à l'adresse `https://127.0.0.1:8000`.
+6.  **Configuration du Serveur Web (Exemple Nginx)**
+    -   Créez un fichier de configuration pour votre site (ex: `/etc/nginx/sites-available/event-pro.conf`).
+    -   Voici un exemple de configuration de base :
+        ```nginx
+        server {
+            listen 80;
+            server_name votre-domaine.com;
+
+            root /var/www/event-pro/public;
+            index index.php;
+
+            location / {
+                try_files $uri /index.php$is_args$args;
+            }
+
+            location ~ \.php$ {
+                fastcgi_pass unix:/var/run/php/php8.2-fpm.sock;
+                fastcgi_split_path_info ^(.+\.php)(/.*)$;
+                include fastcgi_params;
+                fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+            }
+
+            location ~* \.(js|css|png|jpg|jpeg|gif|ico)$ {
+                expires 1y;
+                log_not_found off;
+            }
+        }
+        ```
+    -   Activez le site et redémarrez Nginx. Pensez à configurer un certificat SSL (Let's Encrypt) pour le HTTPS.
+
+7.  **Optimisation du Cache**
+    Pour des performances optimales en production, vous pouvez vider et préchauffer le cache :
+    ```bash
+    php bin/console cache:clear --env=prod
+    php bin/console cache:warmup --env=prod
+    ```
+
+Votre application est maintenant déployée et prête à être utilisée !
 
 ---
 
